@@ -1,0 +1,72 @@
+##Cell oracle workflow 
+#Make sure you have a conda environment set up for cell oracle- refer to Set-up-conda-env-celloracle
+
+#Start Ipython in the shell
+
+Ipython
+
+#Import libraries 
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+%matplotlib inline
+
+import seaborn as sns
+import os, sys, shutil, importlib, glob
+from tqdm.notebook import tqdm
+
+from celloracle import motif_analysis as ma
+import celloracle as co
+co.__version__
+
+%config InlineBackend.figure_format = 'retina'
+
+plt.rcParams['figure.figsize'] = [6, 4.5]
+plt.rcParams["savefig.dpi"] = 300
+
+##Load scATAC peak data and peak connection data made with cicero 
+# Load scATAC-seq peak list.
+#Edit path to find the data you want to use 
+peaks = pd.read_csv("/home/lditchburn/working_data_02/scATAC/Ncicero_output/Nall_peaks.csv", index_col=0)
+peaks = peaks.x.values
+peaks
+
+# Load Cicero coaccessibility scores.
+
+cicero_connections = pd.read_csv("/home/lditchburn/working_data_02/scATAC/Ncicero_output/Ncicero_connections.csv", index_col=0)
+cicero_connections.head()
+
+##Annotate transcription start site 
+#Make sure to use same reference genome that scATAC-seq data was generated with
+
+ma.SUPPORTED_REF_GENOME #returns a list of supported genomes 
+
+##!! Please make sure to specify the correct reference genome here
+tss_annotated = ma.get_tss_info(peak_str_list=peaks, ref_genome="hg19")
+
+# Check results
+tss_annotated.tail()
+
+##Intergrate TSS info and cicero connections 
+#The output file after the integration process has three columns: ["peak_id", "gene_short_name", "coaccess"]
+
+# “peak_id” is either the TSS peak or the peaks that have a connection to a TSS peak.
+# “gene_short_name” is the gene name that associated with the TSS site.
+# “coaccess” is the coaccessibility score between the peak and a TSS peak. If the score is 1, it means that the peak is a TSS itself.
+
+integrated = ma.integrate_tss_peak_with_cicero(tss_peak=tss_annotated,
+                                               cicero_connections=cicero_connections)
+print(integrated.shape)
+integrated.head()
+
+##Filter peaks 
+#Remove peaks with weak coaccessibility scores 
+
+peak = integrated[integrated.coaccess >= 0.8]
+peak = peak[["peak_id", "gene_short_name"]].reset_index(drop=True)
+print(peak.shape)
+peak.head()
+
+##Save data 
+#Save the promoter/enhancer peaks 
+peak.to_csv("/home/lditchburn/working_data_02/scATAC/celloracle_output/Nprocessed_peak_file.csv")

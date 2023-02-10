@@ -1,0 +1,189 @@
+## Cell oracle work flow 
+# Scanning for TF binding motifs 
+
+# Start Ipython
+Ipython
+
+# Import libraries 
+
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+
+
+import seaborn as sns
+
+import os, sys, shutil, importlib, glob
+from tqdm.notebook import tqdm
+
+from celloracle import motif_analysis as ma
+from celloracle.utility import save_as_pickled_object
+
+%config InlineBackend.figure_format = 'retina'
+%matplotlib inline
+
+plt.rcParams['figure.figsize'] = (15,7)
+plt.rcParams["savefig.dpi"] = 600
+
+## Reference genome data preparation 
+# Install reference genome 
+# PLEASE make sure reference genome is correct.
+ref_genome = "/scratchfs/lditchburn/hg19"
+ref_genome = "hg19"
+genome_installation = ma.is_genome_installed(ref_genome=ref_genome)
+print(ref_genome, "installation: ", genome_installation)
+
+if not genome_installation:
+    import genomepy
+    genomepy.install_genome(ref_genome, "UCSC")
+else:
+    print(ref_genome, "is installed.")
+
+## Load Data
+# scATAC-seq file must be converted in a csv file with 3 columns: 
+# 1st column is index, 2nd column is peak_id, 3rd column is gene_short_name 
+# this csv file is generated following the cicero workflow for scATAC-seq data preparation for cell oracle 
+
+# Load annotated peak data.
+peaks = pd.read_csv("/home/lditchburn/working_data_02/scATAC/celloracle_output/Nprocessed_peak_file.csv", index_col=0)
+peaks = pd.read_csv("/Users/leightonditchburn/Documents/Data/cell_oracle/Brain_dev_GRN/snATAC/Nprocessed_peak_file.csv", index_col=0)
+peaks.head()
+
+# Define quality check fuction
+def decompose_chrstr(peak_str):
+    """
+    Args:
+        peak_str (str): peak_str. e.g. 'chr1_3094484_3095479'
+
+    Returns:
+        tuple: chromosome name, start position, end position
+    """
+
+    *chr_, start, end = peak_str.split("_")
+    chr_ = "_".join(chr_)
+    return chr_, start, end
+
+from genomepy import Genome
+
+def check_peak_format(peaks_df, ref_genome):
+    """
+    Check peak format.
+     (1) Check chromosome name.
+     (2) Check peak size (length) and remove sort DNA sequences (<5bp)
+
+    """
+
+    df = peaks_df.copy()
+
+    n_peaks_before = df.shape[0]
+
+    # Decompose peaks and make df
+    decomposed = [decompose_chrstr(peak_str) for peak_str in df["peak_id"]]
+    df_decomposed = pd.DataFrame(np.array(decomposed))
+    df_decomposed.columns = ["chr", "start", "end"]
+    df_decomposed["start"] = df_decomposed["start"].astype(np.int)
+    df_decomposed["end"] = df_decomposed["end"].astype(np.int)
+
+    # Load genome data
+    genome_data = Genome(ref_genome)
+    all_chr_list = list(genome_data.keys())
+
+
+    # DNA length check
+    lengths = np.abs(df_decomposed["end"] - df_decomposed["start"])
+
+
+    # Filter peaks with invalid chromosome name
+    n_threshold = 5
+    df = df[(lengths >= n_threshold) & df_decomposed.chr.isin(all_chr_list)]
+
+    # DNA length check
+    lengths = np.abs(df_decomposed["end"] - df_decomposed["start"])
+
+    # Data counting
+    n_invalid_length = len(lengths[lengths < n_threshold])
+    n_peaks_invalid_chr = n_peaks_before - df_decomposed.chr.isin(all_chr_list).sum()
+    n_peaks_after = df.shape[0]
+
+    #
+    print("Peaks before filtering: ", n_peaks_before)
+    print("Peaks with invalid chr_name: ", n_peaks_invalid_chr)
+    print("Peaks with invalid length: ", n_invalid_length)
+    print("Peaks after filtering: ", n_peaks_after)
+
+    return df
+
+peaks = check_peak_format(peaks, ref_genome)
+
+## During motif analysis can either use a custom TF binding reference 
+# (can use motifs from 'gimmemotifs', celloracle provides motif datasets generated from 'CisBP', 
+# or can use your own custom motif data)
+
+### Instantiate TFinfo object and search for TF binding motifs
+## motif analysis module has a custom class 'TFinfo'
+## The TFinfo object executes the following:
+# Converts a peak data into a DNA sequences
+# Scans the DNA sequences searching for TF binding motifs.
+# Post-processes the motif scan results
+# Converts data into appropriate format. You can convert data into base-GRN. 
+# The base GRN data can be formatted as either a python dictionary or pandas dataframe. 
+# This output will be the final base GRN used in the GRN model construction step.
+
+# Instantiate TFinfo object
+tfi = ma.TFinfo(peak_data_frame=peaks,
+                ref_genome=ref_genome)
+
+# Can specify the TF binding motif data using 'tfi.scan(motifs=motifs)
+# If motifs are not specified or motifs are set to 'None', default motifs will be loaded automatically                                                             
+# For mouse and human, “gimme.vertebrate.v5.0.” will be used as the default motifs
+
+# Default motifs in gimmemotifs
+from gimmemotifs.motif import default_motifs
+motifs =  default_motifs()
+
+# Check first 10 motifs
+motifs[:10]
+
+# Load CisBP motifs
+ma.MOTIFS_LIST #check available motif sets
+motifs = ma.load_motifs("CisBP_ver2_Homo_sapiens.pfm") #load motif set of interest
+motifs[:10] #look at first 10 motifs
+
+%%time
+# Scan motifs. !!CAUTION!! This step may take several hours if you have many peaks!
+tfi.scan(fpr=0.02,
+         motifs=motifs,  # If you enter None, default motifs will be loaded.
+         verbose=True)
+
+# Save tfinfo object
+tfi.to_hdf5(file_path="/scratchfs/lditchburn/FNIC.celloracle.tfinfo")
+
+# Check motif scan results
+tfi.scanned_df.head()
+
+#Now have the score for each sequence and motif_id pair
+
+##Filtering motifs 
+
+# Reset filtering
+tfi.reset_filtering()
+
+# Do filtering
+tfi.filter_motifs_by_score(threshold=10)
+
+# Format post-filtering results.
+tfi.make_TFinfo_dataframe_and_dictionary(verbose=True)
+
+##Get final base GRN
+df = tfi.to_dataframe()
+df.head()
+
+##Save results 
+#Will use this information when constructing the GRN models later
+# Save result as a dataframe
+df = tfi.to_dataframe()
+df.to_parquet(os.path.join("/scratchfs/lditchburn/base_GRN_dataframe.parquet"))
+
+# Or save the result as a dictionary.
+#td = tfi.to_dictionary(dictionary_type="targetgene2TFs")
+#save_as_pickled_object(td, os.path.join(folder, "TFinfo_targetgene2TFs.pickled"))

@@ -1,0 +1,330 @@
+### Cell oracle GRN model construction and network analysis 
+## Uses two custom classes, 'Oracle' and 'Links'
+## 'Oracle' does the following: 
+# Import scRNA-sequence data
+# Import base GRN data
+# scRMA-seq data processing 
+# GRN model construction 
+# in silico peorturbation 
+## 'Links' is a class to store GRN data and contains functions for network analysis and visualisation 
+
+## Start a Jupyter notebook use nice on sever as quiet intensive calculations
+/bin/nice -n 5 jupyter notebook --no-browser --port 7805
+
+## Import libraries 
+
+import os
+import sys
+
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+import scanpy as sc
+import seaborn as sns
+import anndata as ad
+
+import celloracle as co
+co.__version__
+
+# visualization settings
+%config InlineBackend.figure_format = 'retina'
+%matplotlib inline
+
+plt.rcParams['figure.figsize'] = [6, 4.5]
+plt.rcParams["savefig.dpi"] = 300
+
+# Make a save folder 
+
+save_folder = "figures" #edit to required path/folder 
+os.makedirs(save_folder, exist_ok=True)
+
+## Load data 
+# scRNA-seq data must be in anndata format 
+
+adata = ad.read("/scratchfs/lditchburn/TLE4_adata.h5ad")
+
+# Recommended that scRNA-seq data only includes 20-30 K (if more recommeneded to downsample)
+# Also recommended that a maxium of 3000 genes is used
+
+# Display cell and gene number
+print(f"Cell number is :{adata.shape[0]}")
+print(f"Gene number is :{adata.shape[1]}")
+
+# Random downsampling into 30K cells if the anndata object include more than 30 K cells. OPTIONAL
+n_cells_downsample = 30000
+
+if adata.shape[0] > n_cells_downsample:
+    # Dowmsample into 30K cells
+    sc.pp.subsample(adata, n_obs=n_cells_downsample, random_state=123)
+
+print(f"Cell number is :{adata.shape[0]}")
+
+## Base GRN
+# Can use your own scATAC-seq data 
+# or built in base GRNs: 
+# a base GRN made from mouse scATAC-seq atlas, recommended for using it with mouse scRNA-seq. 
+# Load the data as follows: base_GRN = co.data.load_mouse_scATAC_atlas_base_GRN()
+# a promoter base GRN: available for 10 species. Load the data as followd: base_GRN = co.data.load_human_promoter_base_GRN()
+
+#Load own data
+#Load an object of celloracles custom class that was saved as hdf5
+base_GRN = pd.read_parquet("/scratchfs/lditchburn/base_GRN_dataframe.parquet") 
+#Load an object of celloracles custom class that was saved as hdf5
+
+# Check data
+base_GRN.head()
+
+## Initiate Oracle object 
+# Instantiate a new oracle object and input gene expression data (anndata) and TF info (base GRN)
+
+# Instantiate Oracle object
+oracle = co.Oracle()
+
+# Anndata should include: gene expression counts, clustering information, trajectory (dimensional reduction embedding) data
+# Need to enter name of clustering data- should be stored in 'obs' attribute of anndata 
+# (can check with this command "adata.obs.columns")
+# Need to enter name of the dimensionality reduction - should be stored in 'obsm' attribute of anndata 
+# (can check with this command "adata.obsm.keys()")
+
+# Show data name in anndata
+print("metadata columns :", list(adata.obs.columns))
+print("dimensional reduction: ", list(adata.obsm.keys()))
+
+# This work flow uses the unscaled mRNA count for the input of the oracle of Oracle object 
+adata.X = adata.layers["raw_count"].copy()
+
+# Instantiate Oracle object.
+oracle.import_anndata_as_raw_count(adata=adata,
+                                   cluster_column_name="stage_id",
+                                   embedding_name="X_umap")
+
+# Load TF info dataframe
+oracle.import_TF_data(TF_info_matrix=base_GRN)
+
+# If TF info saved as a dictionary use the following 
+# oracle.import_TF_data(TFdict=TFinfo_dictionary)
+
+## Make a dictionary (OPTIONAL)
+# Manually add TF-target gene pair data
+# To import TF data into Oracle object, needs to be converted into a python dictionary
+# Dictionary keys: target gene, Dictionary values: list of regulatory candidate TFs
+
+## Load the TF and target gene information 
+#Paul_15_data = pd.read_csv("TF_data_in_Paul15.csv")
+#Paul_15_data
+
+## Make dictionary: dictionary key is TF and dictionary value is list of target genes.
+# TF_to_TG_dictionary = {}
+
+# for TF, TGs in zip(Paul_15_data.TF, Paul_15_data.Target_genes):
+    ## convert target gene to list
+    # TG_list = TGs.replace(" ", "").split(",")
+    ## store target gene list in a dictionary
+    # TF_to_TG_dictionary[TF] = TG_list
+
+## Invert the dictionary above using a utility function in celloracle.
+# TG_to_TF_dictionary = co.utility.inverse_dictionary(TF_to_TG_dictionary)
+
+## Add TF information dictionary into oracle object 
+## Add TF information
+# oracle.addTFinfo_dictionary(TG_to_TF_dictionary)
+
+## KNN imputation 
+# First need to calculate and select PCs
+
+# Perform PCA
+oracle.perform_PCA()
+
+# Select important PCs
+plt.plot(np.cumsum(oracle.pca.explained_variance_ratio_)[:100])
+n_comps = np.where(np.diff(np.diff(np.cumsum(oracle.pca.explained_variance_ratio_))>0.002))[0][0]
+plt.axvline(n_comps, c="k")
+print(n_comps)
+n_comps = min(n_comps, 50)
+
+#Estimate optimal number of nearest neighbors for KNN imputation
+n_cell = oracle.adata.shape[0]
+print(f"cell number is :{n_cell}")
+
+k = int(0.025*n_cell)
+print(f"Auto-selected k is :{k}")
+
+oracle.knn_imputation(n_pca_dims=n_comps, k=k, balanced=True, b_sight=k*8,
+                      b_maxl=k*4, n_jobs=4)
+
+## Save and load 
+# Can save 'Oracle' object using "Oracle.to_hdf5(FILE_NAME.celloracle.oracle)"
+# Load saved file using "co.load_hdf5(FILE_NAME.celloracle.oracle)" 
+
+# Save oracle object.
+oracle.to_hdf5("TLE4.celloracle.oracle")
+
+# Load file.
+oracle = co.load_hdf5("Paul_15_data.celloracle.oracle")
+
+## GRN calculation 
+# Construct cluster-specific GRN for all clusters 
+# Can calculate GRNs with get_links function returning results as a "Links" object thats stores 
+# the inferred GRNs and corresponding metadata
+
+# check data
+sc.pl.umap(oracle.adata, color="stage_id")
+
+# "n_jobs" parameter in "get_links" function controls number of jobs to run in parallel, "-1" means using all processors
+
+%%time
+# Calculate GRN for each population in "stage_id" clustering unit.
+# This step may take some time.(~30 minutes)
+links = oracle.get_links(cluster_name_for_GRN_unit="stage_id", alpha=10,
+                         verbose_level=10, test_mode=False, n_jobs=-1)
+
+# Raw GRN data is stored as a dictionary of dataframes in "links_dict" attribute
+links.links_dict.keys()
+links.links_dict["21"]
+
+# Can export the file as follows 
+# Set cluster name
+cluster = "Ery_0
+
+# Save as csv
+# links.links_dict[cluster].to_csv(f"raw_GRN_for_{cluster}.csv")
+
+# Links object stores colour information in "palette" attribute, this is used when visualising clusters
+#Sample will be visualised in that order but can change the colour and order of cluster 
+
+# Show the contents of pallete
+links.palette
+# Change the order of pallete. OPTIONAL
+order = ['0', '1', '2',
+         '3', '4', '5', '6', '7', '8', '9', '10', '11',
+         '12', '13', '14',
+         '15', '16',
+         '17', '18', '19', '20' , '21', '22', '23', '24', '25',
+         '26', '27', '28', '29', '30', '31', '32', '33', '34']
+links.palette = links.palette.loc[order]
+links.palette
+
+# Save Links object.
+links.to_hdf5(file_path="links.celloracle.links")
+
+## Network preprocessing 
+# Cell Oracle constructs GRN models as a list of directed edges between a TF and its target genes.
+# Need to remove weak or insignificant edges before network structure analysis
+
+# Filter network edges as follows:
+# Remove uncertain network edges based on p-value 
+# Remove weak network edges. 
+
+# Raw network data is stored in "links_dict" attribute
+# Filtered network data is stored in "filtered_links" attribute 
+
+links.filter_links(p=0.001, weight="coef_abs", threshold_number=3000) # Adjust "threshold_number" to allow for more edges 
+
+# Examine network degree distribution 
+# Network degree - number of edges for each node
+plt.rcParams["figure.figsize"] = [9, 4.5]
+links.plot_degree_distributions(plot_model=True,
+                                               #save=f"{save_folder}/degree_distribution/",
+                                               )
+
+plt.rcParams["figure.figsize"] = [6, 4.5]
+
+## Calculate several network scores
+# Calculate network scores
+links.get_network_score()
+
+# Score is stored as an attribute "merged_score" 
+links.merged_score.head()
+
+# Save processed GRNs (will be used during in silico TF perturbation analysis) 
+# Save Links object.
+links.to_hdf5(file_path="TLE4.celloracle.links")
+
+# Can load files with the following command
+links = co.load_hdf5(file_path="links.celloracle.links")
+
+## Network analysis; network score for each gene 
+# Visualise genes with high network centrality 
+
+# Check cluster name
+links.cluster
+
+# Visualize top n-th genes with high scores.
+for x in range(len(links.cluster)):
+    links.plot_scores_as_rank(links.cluster[x], n_gene=30, save=f"{save_folder}/ranked_score")
+ # adjust "n_gene" value to see more genes
+
+# Compare network scores between two clusters to analyse differences in GRN structure 
+
+# Eigenvector centrality 
+plt.ticklabel_format(style='sci',axis='y',scilimits=(0,0))
+links.plot_score_comparison_2D(value="eigenvector_centrality",
+                               cluster1="0", cluster2="60",
+                               percentile=98, save=f"{save_folder}/score_comparison")
+
+# Betweeness centrality 
+plt.ticklabel_format(style='sci',axis='y',scilimits=(0,0))
+links.plot_score_comparison_2D(value="betweenness_centrality",
+                               cluster1="0", cluster2="60",
+                               percentile=98, save=f"{save_folder}/score_comparison")
+
+# Degree centrality 
+plt.ticklabel_format(style='sci',axis='y',scilimits=(0,0))
+links.plot_score_comparison_2D(value="degree_centrality_all",
+                               cluster1="0", cluster2="60",
+                               percentile=98, save=f"{save_folder}/score_comparison")
+
+# Focus on a gene's network score change during differentiation 
+
+# Visualize Gata2 network score dynamics
+links.plot_score_per_cluster(goi="PRRX1", save=f"{save_folder}/network_score/PRRX1")
+
+# If a gene does not have network edge in a cluster, network scores can not be calculated and scores will not be shown
+# Can check the filtered network edge as follows:
+cluster_name = "45"
+filtered_links_df = links.filtered_links[cluster_name]
+filtered_links_df.head()
+
+# Confirm there is no "GENE" connection in cluster of interest 
+filtered_links_df[filtered_links_df.source == "KCNH1"]
+
+# Compute gene cartography plots (will be calculated for each GRN)
+# Gene cartography classifies gene into several groups using network module structure and connections 
+
+# Plot cartography as a scatter plot
+links.plot_cartography_scatter_per_cluster(scatter=True,
+                                           kde=False,
+                                           gois=["TCF12", "ZEB1", "GLIS3"], # Highlight genes of interest
+                                           auto_gene_annot=False,
+                                           args_dot={"n_levels": 105},
+                                           args_line={"c":"gray"}, save=f"{save_folder}/cartography")
+
+plt.rcParams["figure.figsize"] = [4, 7]
+# Plot the summary of cartography analysis
+links.plot_cartography_term(goi="TCF12",
+                             save=f"{save_folder}/cartography_sum",
+                           )
+
+## Network analysis; network score distribtion 
+# Get insight into global network trends 
+
+plt.rcParams["figure.figsize"] = [6, 4.5]
+
+# Plot a box plot of cluster score distributions for "degree centrality"
+plt.subplots_adjust(left=0.15, bottom=0.3)
+plt.ylim([0,0.10])
+links.plot_score_discributions(values=["degree_centrality_all"], method="boxplot",
+                               save=f"{save_folder}/DCA_bp"
+                              )
+
+# Plot a box plot of cluster score distributions for "eigenvector centrality"
+plt.subplots_adjust(left=0.15, bottom=0.3)
+plt.ylim([0, 0.6])
+links.plot_score_discributions(values=["eigenvector_centrality"], method="boxplot", save=f"{save_folder}/EC_bp")
+
+# Plot a box plot of cluster network entropy distributions 
+plt.subplots_adjust(left=0.15, bottom=0.3)
+links.plot_network_entropy_distributions(save=f"{save_folder}/NED_bp")
+
+
+co.network_analysis.draw_network(linkList, return_graph=False)

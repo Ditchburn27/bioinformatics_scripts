@@ -1,0 +1,18 @@
+# Change colouring of UMAP cell clusters
+
+# First make colour palette using ColorBrewer
+# Use sequential palettes for data that progresses from low to high 
+# Can also be useful for developmental data going from early dev to later stages
+
+mypalette <- brewer.pal(4, "Blues")
+
+# Visualise plot with custom colouring 
+
+DimPlot(L4,
+     cols = mypalette,
+     reduction = "umap",
+     group.by = "stage_ids",
+     shuffle = TRUE,
+     label = TRUE)
+    
+

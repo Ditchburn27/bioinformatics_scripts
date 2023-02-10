@@ -1,0 +1,216 @@
+###scRNA-seq data pre-processing for cell oracle 
+##Preprocessing the following will occur 
+#Variable gene selection and normalisation
+#Log transformation - cell oracle also requires raw gene expression values (will be stored in anndata)
+#Cell clustering 
+#Dimensional reduction 
+
+#Start Ipython
+ipython
+
+##Import libraries 
+
+import os
+import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
+import scanpy as sc
+import anndata as ad
+
+%matplotlib inline
+%config InlineBackend.figure_format = 'retina'
+plt.rcParams["savefig.dpi"] = 300
+plt.rcParams["figure.figsize"] = [6, 4.5]
+
+## Load data 
+# Load in raw_feature_bc_matrix.h5 from 10X cell ranger output.
+# Load in as many datasets as needed will combine these in the next step.
+
+# data_2d = sc.read_10x_h5("/scratchfs/lditchburn/neonatal/2d")
+# data_2d.var_names_make_unique()
+# data_34d = sc.read_10x_h5("/scratchfs/lditchburn/neonatal/34d")
+# data_34d.var_names_make_unique()
+
+## Concatenate data sets
+# Add some metadata
+
+# data_2d.obs['sample'] ="2d"
+# data_34d.obs['sample'] ="34d"
+
+# Merge into one object
+
+# adata = data_2d.concatenate(data_34d)
+#FutureWarning: X.dtype being converted to np.float32 from float64. 
+# In the next version of anndata (0.9) conversion will not be automatic. 
+# Pass dtype explicitly to avoid this warning. Pass `AnnData(X, dtype=X.dtype, ...)` to get the future behavour.
+#[AnnData(sparse.csr_matrix(a.shape), obs=a.obs) for a in all_adatas]
+
+# Delete individual datasets to save space 
+
+# del(data_2d, data_34d)
+
+# Load in data from converted Seurat object
+adata = ad.read("/scratchfs/lditchburn/allPN.h5ad")
+
+##Filtering 
+# Only consider genes with more than 1 count
+
+sc.pp.filter_genes(adata, min_counts=1)
+
+##Normalisation 
+# Normalize gene expression matrix with total UMI count per cell
+
+sc.pp.normalize_per_cell(adata, key_n_counts='n_counts_all')
+
+##Identification of highly variable genes 
+#Removing non-variable genes reduces calculation time during GRN reconstruction and simulation steps. 
+#Also improves overall accuracy of GRN inference by removing noisy genes
+#Recommneded to use the top 2000 - 3000 variable genes 
+
+# Select top 3000 highly-variable genes
+filter_result = sc.pp.filter_genes_dispersion(adata.X,
+                                              flavor='cell_ranger',
+                                              n_top_genes=3000,
+                                              log=False)
+
+# Subset the genes
+adata = adata[:, filter_result.gene_subset]
+
+# Renormalize after filtering
+sc.pp.normalize_per_cell(adata)
+
+##Log transformation 
+#Need to log transform and scale the data before principal components, clusters and DEGs are calculated 
+#Also need to keep non-transformed gene expression data in a separate anndata layer before log transformation
+
+# keep raw cont data before log transformation
+adata.raw = adata
+adata.layers["raw_count"] = adata.raw.X.copy()
+
+# Log transformation and scaling
+sc.pp.log1p(adata)
+sc.pp.scale(adata)
+
+##PCA and neighbor calculations 
+#These are need to perform the dimeonsionality reduction and clustering 
+
+# PCA
+sc.tl.pca(adata, svd_solver='arpack')
+
+# Diffusion map
+sc.pp.neighbors(adata, n_neighbors=10, n_pcs=40)
+
+sc.tl.diffmap(adata)
+# Calculate neihbors again based on diffusionmap
+sc.pp.neighbors(adata, n_neighbors=10, use_rep='X_diffmap')
+
+#Cell clustering 
+sc.tl.louvain(adata, resolution=0.8)
+
+## Dimensionality reduction using PAGA and force-directed graphs 
+# Embedding should recapitulate the cellular transition of interest 
+# Choose an algorithm that can accurately represent the developmental trajectory of data
+# Recommended algorithms: 'UMAP', 'TSNE', 'Diffusion map', 'Force-directed graph drawing'
+# In the example a combination of alogrithms is used: 'diffusion map', 'force-directed graph', 'PAGA'
+
+# PAGA graph construction
+sc.tl.paga(adata, groups='louvain')
+plt.rcParams["figure.figsize"] = [6, 4.5]
+sc.pl.paga(adata, save = "allPN_PAGA.svg") #add save = 'file_name' to save file, can also specify .pdf , .svg , .png
+
+sc.tl.draw_graph(adata, init_pos='paga', random_state=123)
+sc.pl.draw_graph(adata, color='louvain', legend_loc='on data', save = "allPN.svg") #add save = 'file_name' to save file, can also specify .pdf , .svg , .png
+
+##Check data 
+plt.rcParams["figure.figsize"] = [4.5, 4.5]
+markers = {"L1":["PAX6", "CUX1"],
+           "L2/3":["CUX1"],
+            "L4":["FOXP2"],
+            "L5/6":["TLE4"]}
+
+for cell_type, genes in markers.items():
+    print(f"marker gene of {cell_type}")
+    sc.pl.draw_graph(adata, color=genes, use_raw=False, ncols=2, save = "markers.keys()")
+    plt.show()
+
+##Cluster annotation (OPTIONAL)
+#Annotate clusters based on marker gene expression
+sc.pl.draw_graph(adata, color=['louvain'],
+                 legend_loc='off data', save ="stage.svg")
+
+# Check current cluster name
+cluster_list = adata.obs.louvain.unique()
+cluster_list
+
+# Make cluster anottation dictionary
+annotation = {"MEP":[5],
+              "Erythroids": [15, 10, 16, 9, 8, 14, 19, 3, 12, 18],
+              "Megakaryocytes":[17, 22],
+              "GMP":[11, 1],
+              "late_GMP" :[0],
+              "Granulocytes":[7, 13, 4],
+              "Monocytes":[6, 2],
+              "DC":[21],
+              "Lymphoid":[20]}
+
+# Change dictionary format
+annotation_rev = {}
+for i in cluster_list:
+    for k in annotation:
+        if int(i) in annotation[k]:
+            annotation_rev[i] = k
+
+# Check dictionary
+annotation_rev
+adata.obs["cell_type"] = [annotation_rev[i] for i in adata.obs.louvain]
+
+# check results
+sc.pl.draw_graph(adata, color=['cell_type', 'paul15_clusters'],
+                 legend_loc='on data')
+
+#Also annotate the individual Louvain clusters
+sc.pl.draw_graph(adata, color=['louvain', 'cell_type'],
+                 legend_loc='on data')
+
+annotation_2 = {'5': 'MEP_0',
+                '15': 'Ery_0',
+                '10': 'Ery_1',
+                '16': 'Ery_2',
+                '14': 'Ery_3',
+                '9': 'Ery_4',
+                '8': 'Ery_5',
+                '19': 'Ery_6',
+                '3': 'Ery_7',
+                '12': 'Ery_8',
+                '18': 'Ery_9',
+                '17': 'Mk_0',
+                '22': 'Mk_0',
+                '11': 'GMP_0',
+                '1': 'GMP_1',
+                '0': 'GMPl_0',
+                '7': 'Gran_0',
+                '13': 'Gran_1',
+                '4': 'Gran_2',
+                '6': 'Mo_0',
+                '2': 'Mo_1',
+                '21': 'DC_0',
+                '20': 'Lym_0'}
+
+adata.obs["louvain_annot"] = [annotation_2[i] for i in adata.obs.louvain]
+
+# Check result
+sc.pl.draw_graph(adata, color=['louvain_annot', 'cell_type'],
+                 legend_loc='on data')
+
+##Subset cells (OPTIONAL)
+adata.obs.cell_type.unique()
+
+cell_of_interest = adata.obs.index[~adata.obs.cell_type.isin(["Lymphoid", "DC"])]
+adata = adata[cell_of_interest, :]
+
+# check result
+sc.pl.draw_graph(adata, color=['louvain_annot', 'cell_type'],
+                 legend_loc='on data')
+
+##Save processed data 
+adata.write_h5ad("data/Paul_etal_15.h5ad")

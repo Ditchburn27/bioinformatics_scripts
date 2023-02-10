@@ -1,0 +1,50 @@
+### RNA-seq read alignment and TPM value calculation
+## Using HISAT2 to align fastq files to transcriptome
+## SAMTools to sort and index bam files
+## deepTools bamCoverage function for BPM normalisation
+## stringtie to calculate TPM values
+
+### Aligning fastq files to hg19 transcriptome
+## Need hg19 reference genome downloaded
+wget https://hgdownload.soe.ucsc.edu/goldenPath/hg19/bigZips/hg19.fa.gz
+
+## Build hisat2 indexes - first must decompress the hg19.fa.gz file (use gunzip)
+hisat2-build hg19.fa hg19_hisat2 
+
+## Aligning reads to indexed reference genome
+# Outputs SAM files
+hisat2 --dta -x /home/lditchburn/working_data_02/rundata/reference/hg19_hisat2 -U RL2128_2020_04_25_C55_20yr_snRNAseq_R2.fastq.gz -S RL2128_snRNAseq_20yr.sam
+# add -p to specify number of processors to use 
+# --dta generates output SAM files
+# -x denotes the indexed reference genome
+# -U used only when aligning a single read
+# -1 and -2 denote read 1 and read 2 for paired-end alignment
+# -S denotes that the output should be in SAM format
+
+### Sort and Index bam files
+## Convert sam files to bam files
+samtools view -bS RL2128_snRNAseq_20yr.sam > RL2128_snRNAseq_20yr.bam 
+
+## Sort bam files
+samtools sort RL2128_snRNAseq_20yr.bam -o RL2128_snRNAseq_20yr.sorted.bam
+
+## Index bam files
+samtools index RL2128_snRNAseq_20yr.sorted.bam
+
+### BPM normalisation 
+bamCoverage -p 10 --normalizeUsing BPM --bam RL2128_snRNAseq_20yr.sorted.bam -o bpmNormalised_RL2128_snRNAseq_20yr.bam
+# add -p to specify number of processors to use 
+# -o denotes output file name
+
+### TPM calculation
+stringtie -p 10 -G /home/lditchburn/working_data_02/rundata/reference/gencode.v19.annotation.gtf -o RL2290_snRNAseq_12mOrganoid-annot.gtf RL2128_snRNAseq_12mOrganoid.sorted.bam
+# -o denoted the output file name
+# add -p to specify the number of processors to use
+# add -G to provide a reference genome annotation file 
+
+### Look at particular genes of interest
+# First need to make a text file containing a list of genes of interest
+# This will create a text file with all the columns of the gtf but only the genes in the list
+grep -f new-target_TFs.txt RL2128_snRNAseq-20yr-annot.gtf > RL2128_20yr_brainTF-epression.txt
+# If this fails it may be due to the formatting of the text file, try the below command
+tr -d '\r' <new-target_TFs.txt > new-target_TFs-2.txt
