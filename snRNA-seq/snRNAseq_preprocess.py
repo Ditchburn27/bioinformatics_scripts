@@ -7,7 +7,7 @@ import scanpy as sc
 import anndata as ad
 import pandas as pd 
 import numpy as np
-import srublet as scr
+import scrublet as scr
 import matplotlib.pyplot as plt
 import seaborn as sns
 from matplotlib.pyplot import rc_context
