@@ -3,6 +3,7 @@
 ############################################################################################
 ###  Import libraries
 import sys
+import os
 import scanpy as sc
 import anndata as ad
 import pandas as pd 
@@ -14,9 +15,12 @@ from matplotlib.pyplot import rc_context
 sc.logging.print_header()
 
 ############################################################################################
-### Set paths to directories for data and figures
+### Make and set paths to directories for data and figures
 data_path = "/data/"
 fig_path = "/out_figs/"
+
+os.mkdir(data_path)
+os.mkdir(fig_path)
 
 ############################################################################################
 ###   Read in data passed from command line
