@@ -16,15 +16,7 @@ from matplotlib.pyplot import rc_context
 sc.logging.print_header()
 
 ############################################################################################
-### Make and set paths to directories for data and figures
-data_path = "./out_data/"
-fig_path = "./out_figs/"
-
-os.mkdir(data_path)
-os.mkdir(fig_path)
-
-############################################################################################
-###   Read in data passed from command line
+### Deal with command line arguments
 parser = argparse.ArgumentParser()
 parser.add_argument('file', type=str, help='Path to the input 10X h5 matrix file')
 parser.add_argument('-o', type=str, required=True,
@@ -34,6 +26,16 @@ args = parser.parse_args()
 data = args.file
 filename = args.o
 
+############################################################################################
+### Make and set paths to directories for data and figures
+data_path = "./out_data/"
+fig_path = "./out_figs/"
+
+os.mkdir(data_path)
+os.mkdir(fig_path)
+
+############################################################################################
+### Read in count matrix
 adata = sc.read_10x_h5(data)
 adata.var_names_make_unique()
 adata.var_names
