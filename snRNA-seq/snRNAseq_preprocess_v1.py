@@ -2,7 +2,6 @@
 
 ############################################################################################
 ###  Import libraries
-import sys
 import os
 import argparse
 import scanpy as sc
@@ -17,9 +16,13 @@ sc.logging.print_header()
 
 ############################################################################################
 ### Deal with command line arguments
-parser = argparse.ArgumentParser()
+arg_description = '''Preprocess snRNA-seq Data:
+                This script cleans snRNA-seq matrices by,
+                   removing doublets, and filtering for
+                high ribosomal and mitochondral % nuclei'''
+parser = argparse.ArgumentParser(description=arg_description)
 parser.add_argument('file', type=str, help='Path to the input 10X h5 matrix file')
-parser.add_argument('-o', type=str, required=True,
+parser.add_argument('-o', '--output-filename', type=str, required=True,
                     help='Provide a name for the output files')
 args = parser.parse_args()
 
@@ -102,7 +105,7 @@ adata.obs['percent_ribo'] = np.sum( adata[:,ribo_mk].X, axis=1).A1 / np.sum( ada
 with rc_context({'figure.figsize':(5,5)}):
     ax = sc.pl.violin(adata, ['n_genes_by_counts', 'total_counts', 'pct_counts_mt', 'percent_ribo'],
              jitter=0.4, multi_panel=True)
-    plt.savefig(f"{fig_path}mito_ribo_pct_violin.png", format='png', bbox_inches='tight')
+    plt.savefig(f"{fig_path}{filename}_mito_ribo_pct_violin.png", format='png', bbox_inches='tight')
 # Outlier function for MADs calculation
 from scipy.stats import median_abs_deviation
 def is_outlier(adata, metric: str, nmads: int):
