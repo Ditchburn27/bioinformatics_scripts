@@ -4,6 +4,7 @@
 ###  Import libraries
 import sys
 import os
+import argparse
 import scanpy as sc
 import anndata as ad
 import pandas as pd 
@@ -24,7 +25,14 @@ os.mkdir(fig_path)
 
 ############################################################################################
 ###   Read in data passed from command line
-data = sys.argv[1]
+parser = argparse.ArgumentParser()
+parser.add_argument('file', type=str, help='Path to the input 10X h5 matrix file')
+parser.add_argument('-o', type=str, required=True,
+                    help='Provide a name for the output files')
+args = parser.parse_args()
+
+data = args.file
+filename = args.o
 
 adata = sc.read_10x_h5(data)
 adata.var_names_make_unique()
@@ -69,12 +77,12 @@ adata.obs['log10_UMI_counts']  = np.log10( adata.obs['total_counts'])
 with rc_context({'figure.figsize': (5,5)}):
     ax = sc.pl.violin( adata, ['log10_gene_counts'], stripplot=True, 
                   inner='box', rotation=70, show=False)
-    plt.savefig(f"{fig_path}violin_feature-cts.png", format='png', bbox_inches='tight')
+    plt.savefig(f"{fig_path}{filename}_violin_feature-cts.png", format='png', bbox_inches='tight')
 
 with rc_context({'figure.figsize': (5,5)}):
     ax = sc.pl.violin( adata, ['log10_UMI_counts'], stripplot=True, 
                   inner='box', rotation=70, show=False)
-    plt.savefig(f"{fig_path}violin_library-sizes.png", format='png', bbox_inches='tight')
+    plt.savefig(f"{fig_path}{filename}_violin_library-sizes.png", format='png', bbox_inches='tight')
 
 ###############################################################################################
 ### Remove nuclei with high ribosomal and mitochondrial count percentages
@@ -125,6 +133,6 @@ adata = adata[:, ~np.in1d(adata.var_names, np.append(mito_genes, ribo_genes))]
 ### Plot highest expressed genes and save anndata object
 with rc_context({'figure.figsize':(5,5)}):
     ax = sc.pl.highest_expr_genes(adata, n_top=20)
-    plt.savefig(f"{fig_path}top20_highest_expressed_genes.png", format='png', bbox_inches='tight')
+    plt.savefig(f"{fig_path}{filename}_top20_highest_expressed_genes.png", format='png', bbox_inches='tight')
 
-adata.write(f"{data_path}cleaned_filtered.h5ad")
+adata.write(f"{data_path}{filename}_cleaned_filtered.h5ad")
