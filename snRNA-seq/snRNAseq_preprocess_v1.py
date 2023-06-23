@@ -16,7 +16,7 @@ sc.logging.print_header()
 
 ############################################################################################
 ### Make and set paths to directories for data and figures
-data_path = "./data/"
+data_path = "./out_data/"
 fig_path = "./out_figs/"
 
 os.mkdir(data_path)
