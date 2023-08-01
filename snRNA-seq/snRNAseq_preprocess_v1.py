@@ -41,7 +41,6 @@ os.mkdir(fig_path)
 ### Read in count matrix
 adata = sc.read_10x_h5(data)
 adata.var_names_make_unique()
-adata.var_names
 
 #############################################################################################
 ### QC nuclei
