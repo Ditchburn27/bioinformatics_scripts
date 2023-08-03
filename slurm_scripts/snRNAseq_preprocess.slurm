@@ -68,6 +68,7 @@ if [ ! -d $RESULTS ]; then
     mkdir -p $RESULTS 
 fi
 echo the results directory is $RESULTS
+
 ###############################################
 # Creates a unique TMP directory on SCRATCH
 
@@ -76,7 +77,6 @@ if [ ! -d $TMP ]; then
     export TMPDIR=$TMP
 fi
 echo the temp directory is $TMP and TMPDIR is $TMPDIR
-
 
 ###############################################
 # Start of job
@@ -91,20 +91,17 @@ OUTPUT=${JOBNAME}_${SLURM_JOBID}.log
 #   then change directory to $SCRATCH
 
 
-cp $1 $SCRATCH
+cp $FILE $SCRATCH
 
 cd $SCRATCH/
 
 
-bash /group/ll005/lditchburn/bioinformatics_scripts_snRNA-seq/snRNAseq_preprocess_v1.py\
-	$1 \
-	$2 
+python3 /group/ll005/lditchburn/bioinformatics_scripts/snRNA-seq/snRNAseq_preprocess_v1.py $FILE -o${OUTPUT_FILENAME}
 
 #############################################
 
 # Get an idea of the directory structure and files
 ls -lR * >> ${OUTPUT}
-
 
 #############################################
 #    $OUTPUT file to the unique results dir
@@ -115,9 +112,6 @@ cd $HOME
 
 ###########################
 # Clean up $SCRATCH 
-
-# Delete TMP folder
-rm -r $TMP
 
 # Save files that were created
 mv $SCRATCH/* $RESULTS

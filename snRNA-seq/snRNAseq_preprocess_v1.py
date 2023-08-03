@@ -13,12 +13,12 @@ arg_description = '''Preprocess snRNA-seq Data:
                 high ribosomal and mitochondral % nuclei'''
 parser = argparse.ArgumentParser(description=arg_description)
 parser.add_argument('file', type=str, help='Path to the input 10X h5 matrix file')
-parser.add_argument('-o', '--output-filename', type=str, required=True,
+parser.add_argument('-o', '--output_filename', type=str, required=True,
                     help='Provide a name for the output files')
 args = parser.parse_args()
 
 data = args.file
-filename = args.o
+filename = args.output_filename
 
 #############################################################################################
 ### Import libraries snRNA-seq data processing
