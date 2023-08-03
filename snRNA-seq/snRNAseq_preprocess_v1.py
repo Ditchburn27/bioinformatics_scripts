@@ -1,18 +1,9 @@
 ### Script to preprocess snRNA-seq data
 
 ############################################################################################
-###  Import libraries
+###  Import CLI libraries
 import os
 import argparse
-import scanpy as sc
-import anndata as ad
-import pandas as pd 
-import numpy as np
-import scrublet as scr
-import matplotlib.pyplot as plt
-import seaborn as sns
-from matplotlib.pyplot import rc_context
-sc.logging.print_header()
 
 ############################################################################################
 ### Deal with command line arguments
@@ -28,6 +19,18 @@ args = parser.parse_args()
 
 data = args.file
 filename = args.o
+
+#############################################################################################
+### Import libraries snRNA-seq data processing
+import scanpy as sc
+import anndata as ad
+import pandas as pd 
+import numpy as np
+import scrublet as scr
+import matplotlib.pyplot as plt
+import seaborn as sns
+from matplotlib.pyplot import rc_context
+sc.logging.print_header()
 
 ############################################################################################
 ### Make and set paths to directories for data and figures
