@@ -122,11 +122,11 @@ adata.obs["outlier"] = (
 adata.obs.outlier.value_counts()
 # find mitochondrial pct outliers 
 adata.obs["mt_outlier"] = is_outlier(adata, "pct_counts_mt", 3) | (
-    adata.obs["pct_counts_mt"] > 8)
+    adata.obs["pct_counts_mt"] > 20)
 adata.obs.mt_outlier.value_counts()
 # find ribosomal pct outliers
 adata.obs["ribo_outlier"] = is_outlier(adata, "percent_ribo", 3) | (
-    adata.obs["percent_ribo"] > 8)
+    adata.obs["percent_ribo"] > 20)
 adata.obs.ribo_outlier.value_counts()
 # Number of cells filtered based on ribo and mito genes
 print(f"Total number of cells: {adata.n_obs}")
