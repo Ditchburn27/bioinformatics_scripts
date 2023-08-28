@@ -19,7 +19,7 @@ plot_tpms <- function(gene = "") {
   t.expression <- pivot_longer(expression, cols = 1:24,
                                names_to = 'sample', values_to = 'tpm')
   t.expression <- t.expression[, -1]
-  t.expression <- left_join(x = t.expression, y = metadata_2,"sample")
+  t.expression <- left_join(x = t.expression, y = metadata,"sample")
   
   return(ggplot(t.expression, aes(x = sample, y = tpm, fill = condition)) + 
            geom_col() + ggtitle(paste(
