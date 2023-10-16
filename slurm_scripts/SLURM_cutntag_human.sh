@@ -1,6 +1,6 @@
 #!/bin/bash --login
 
-#SBATCH --job-name=170723_cutntag
+#SBATCH --job-name=CUTnTag
 #SBATCH --partition=peb
 #SBATCH --mem-per-cpu=5G
 #SBATCH --nodes=1
@@ -8,7 +8,7 @@
 #SBATCH --cpus-per-task=35
 #SBATCH --time=8:00:00   
 #SBATCH --export=NONE
-##SBATCH --mail-user=trung.nguyen@perkins.org.au
+##SBATCH --mail-user=22720224@student.uwa.edu.au
 ##SBATCH --mail-type=BEGIN,END
 
 set -eu -o pipefail -o verbose
@@ -18,14 +18,14 @@ echo $SLURM_JOB_NAME job started at  `date`
 
 # To compile with the GNU toolchain
 
-conda activate /group/ll003/tnguyen/miniconda3/envs/cutntag
+conda activate /group/ll005/envs/cutntag
 
 #  Note: SLURM_JOBID is a unique number for every job.
 #  These are generic variables
 JOBNAME=${SLURM_JOB_NAME}
 SCRATCH=$MYSCRATCH/$JOBNAME/$SLURM_JOBID
-BOWTIE2_INDEX=/group/ll003/tnguyen/genomes/hg38/hg38
-BLACKLIST=/group/ll003/tnguyen/genomes/hg38/blacklist/hg38-blacklist.v2.bed
+BOWTIE2_INDEX=/group/ll005/reference/bowtie2_hg38/hg38
+BLACKLIST=/group/ll005/reference/bowtie2_hg38/blacklist/hg38-blacklist.v2.bed
 ###############################################
 # Creates a unique directory in the SCRATCH directory for this job to run in.
 if [ ! -d $SCRATCH ]; then 
