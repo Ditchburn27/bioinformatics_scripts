@@ -1,6 +1,6 @@
 import scanpy as sc
 import numpy as np
-
+from sklearn.model_selection import train_test_split
 
 
 # Function to downsample data to a set number of cells based on the density of the data
@@ -25,21 +25,69 @@ def density_ds (adata, num_cells = 10000):
     ds_adata = adata[bcs]
     return ds_adata
 
+###################################################################################
+###################################################################################
+
 # Function to randomly split anndata object into train and test subsets
 # 80% for training and 20% for testing
-def split_adata(adata, split=0.8):
+def split_adata(adata, split=0.8, target_variable='numerical_age'):
     split = split
     train_barcodes = np.random.choice(adata.obs.index, replace = False, size= int(split * adata.shape[0]))
     test_barcodes = np.asarray([barcode for barcode in adata.obs.index if barcode not in set(train_barcodes)])
     train_adata = adata[train_barcodes]
     test_adata = adata[test_barcodes]
+    # generate train and test data by extracting matrices from adata.X
+    X_train = train_adata.X
+    X_test = test_adata.X
+    y_train = train_adata.obs[target_variable].to_numpy().reshape(-1,1)
+    y_test = test_adata.obs[target_variable].to_numpy().reshape(-1,1)
+    print(f"X_train shape is: {X_train.shape}")
+    print(f"X_test shape is: {X_test.shape}")
+    print(f"y_train shape is: {y_train.shape}")
+    print(f"y_test shape is: {y_test.shape}")
 
-    print (len(train_adata), len(test_adata))
-    return train_adata, test_adata
+    return X_train, X_test, y_train, y_test
 
-# Function that returns the numerical_age in numpy arrays for the corresponding train and test data
-def num_age_split(train_adata, test_adata):
-    y_train = train_adata.obs['numerical_age'].to_numpy().reshape(-1,1)
-    y_test = test_adata.obs['numerical_age'].to_numpy().reshape(-1,1)
-    print(y_train.shape, y_test.shape)
-    return y_train, y_test
+###################################################################################
+###################################################################################
+# Function to split anndata object into train and test
+# 80% of cells from each sample (adata.obs['batch']) will be allocated for training
+# 20% of cells from each sample will be allocated for testing
+def equal_split_adata (adata, target_variable ='numerical_age'):
+    # Identiies the unique batches or samples in adata
+    unique_batches = adata.obs['batch'].unique()
+    # Calculate the number of cells to be included from each batch for 80% training
+    n_train_cells_per_batch = {
+        batch: int(0.8 * len(adata.obs[adata.obs['batch'] == batch]))
+        for batch in unique_batches}
+    # Calculate the number of cells to be included from each batch for testing
+    n_test_cells_per_batch = {
+        batch: len(adata.obs[adata.obs['batch'] == batch]) - n_train_cells_per_batch[batch]
+        for batch in unique_batches}
+    # Initialize empty arrays to hold train and test indicies
+    train_indices = np.array([], dtype=int)
+    test_indices = np.array([], dtype=int)
+    # Loop through unique batches and randomly sample cells 
+    # for both train and test sets
+    for batch in unique_batches:
+         # Get the indices of cells in the current batch
+         batch_indices = np.where(adata.obs['batch'] == batch)[0]
+
+         # Split the batch indices into train and test indices
+         train_batch_indices, test_batch_indices = train_test_split(batch_indices, 
+                                                                   train_size=n_train_cells_per_batch[batch], 
+                                                                   test_size=n_test_cells_per_batch[batch], 
+                                                                   random_state=42)
+
+         # Add the batch-specific train and test indices to the overall arrays
+         train_indices = np.concatenate((train_indices, train_batch_indices))
+         test_indices = np.concatenate((test_indices, test_batch_indices))
+    # Subset with the train and test indicies to generate the datasets     
+    X_train = adata.X[train_indices]
+    X_test = adata.X[test_indices]
+    y_train = adata.obs[target_variable][train_indices] 
+    y_test = adata.obs[target_variable][test_indices]
+    return X_train, X_test, y_train, y_test
+
+    
+
