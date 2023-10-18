@@ -1,0 +1,203 @@
+import matplotlib.pyplot as plt
+import numpy as np 
+import pandas as pd
+import scanpy as sc 
+import torch 
+import umap
+from sklearn.preprocessing import OneHotEncoder
+from sklearn.metrics import confusion_matrix
+sc.settings.verbosity = 1
+sc.logging.print_header()
+sc.settings.n_jobs = 14
+cd /scratch
+adata = sc.read("/scratch/data/hg38_aligned_braindev/braindev_count_matrices_metadata.h5ad")
+# Preprocessing
+sc.pp.filter_cells(adata, min_genes=200)
+sc.pp.filter_genes(adata, min_cells=3)
+adata.var['mt'] = adata.var_names.str.startswith('MT-') 
+sc.pp.calculate_qc_metrics(adata, qc_vars=['mt'], percent_top=None, log1p=False, inplace=True)
+
+adata = adata[adata.obs.n_genes_by_counts < 2500, :]
+adata = adata[adata.obs.pct_counts_mt < 5, :]
+
+sc.pp.normalize_total(adata, target_sum=1e4)
+sc.pp.log1p(adata)
+sc.pp.scale(adata)
+# Subsetting
+Based on broad cell type (i.e. PNs, INs, Oligo, Astro) so I can train models on each of the cell types
+PNs_annots = ['L2-3_CUX2', 'L4_RORB', 'L5-6_THEMIS', 'PN_dev']
+INs_annots = ['MGE', 'CGE', 'LAMP_NOS1']
+Oligo_annots = ['Oligo', 'OPC']
+PN_adata = adata[adata.obs['major_clust'].isin(PNs_annots)].copy()
+IN_adata = adata[adata.obs['major_clust'].isin(INs_annots)].copy()
+Oligo_adata = adata[adata.obs['major_clust'].isin(Oligo_annots)].copy()
+Astro_adata = adata[adata.obs['major_clust']=='Astro'].copy()
+# Making train and test datasets
+def split_tt(adata, split=0.8):
+    split = split
+    train_barcodes = np.random.choice(adata.obs.index, replace = False, size= int(split * adata.shape[0]))
+    val_barcodes = np.asarray([barcode for barcode in adata.obs.index if barcode not in set(train_barcodes)])
+    train_adata = adata[train_barcodes]
+    val_adata = adata[val_barcodes]
+
+    print (len(train_adata), len(val_adata))
+    return train_adata, val_adata
+train_PN, val_PN = split_tt(PN_adata)
+train_IN, val_IN = split_tt(IN_adata)
+train_Oligo, val_Oligo = split_tt(Oligo_adata)
+train_Astro, val_Astro = split_tt(Astro_adata)
+X_train_PN = train_PN.X
+X_val_PN = val_PN.X
+X_train_IN = train_IN.X
+X_val_IN = val_IN.X
+X_train_Oligo = train_Oligo.X
+X_val_Oligo = val_Oligo.X
+X_train_Astro = train_Astro.X
+X_val_Astro = val_Astro.X
+### Splitting up the stage id labels for test and train sets 
+OneHotEncoder is an array where rows correspond to cells and columns are the stage id labels. All columns in a row will have the value of 0 except for one which will have a value of 1 indicating the stage id that the cell in that row is labelled with. 
+encoder = OneHotEncoder()
+encoder.fit(adata.obs['stage_id'].to_numpy().reshape(-1,1))
+
+def encoder_transform(train_adata, val_adata):
+    y_train = encoder.transform(train_adata.obs['stage_id'].to_numpy().reshape(-1,1)).toarray()
+    y_val = encoder.transform(val_adata.obs['stage_id'].to_numpy().reshape(-1,1)).toarray()
+    print(y_train.shape, y_val.shape)
+    return y_train, y_val
+y_train_PN, y_val_PN = encoder_transform(train_PN, val_PN)
+y_train_IN, y_val_IN = encoder_transform(train_IN, val_IN)
+y_train_Oligo, y_val_Oligo = encoder_transform(train_Oligo, val_Oligo)
+y_train_Astro, y_val_Astro = encoder_transform(train_Astro, val_Astro)
+from sklearn.ensemble import RandomForestRegressor
+model = RandomForestRegressor()
+model.fit(X_train_PN, y_train_PN)
+preds_valid=model.predict(X_val_PN)
+score_valid=mean_absolute_error(y_val_PN,preds_valid)
+print("MAE: ",score_valid)
+## Making the dataloader
+X_train_PN, X_val_PN = torch.tensor(X_train_PN), torch.tensor(X_val_PN)
+y_train_PN, y_val_PN = torch.tensor(y_train_PN), torch.tensor(y_val_PN)
+PN_train_dataset = torch.utils.data.TensorDataset(X_train_PN, y_train_PN)
+PN_val_dataset = torch.utils.data.TensorDataset(X_val_PN, y_val_PN)
+# the PyTorch dataset is used to make a DataLoader
+batch_size = 64
+PN_train_dataloader = torch.utils.data.DataLoader(PN_train_dataset, batch_size=batch_size, shuffle=True)
+PN_val_dataloader = torch.utils.data.DataLoader(PN_val_dataset, batch_size=batch_size)
+n_genes = X_train_PN.shape[1]
+out_features = 128
+layer = torch.nn.Linear(in_features=n_genes, out_features=out_features)
+layer
+# we can inspect the contents of one batch
+# the first output are the input features, the second are the class labels
+b_X, b_y = next(iter(PN_train_dataloader))
+b_X.shape, b_X # feature size should be batch_size X num_genes
+b_y.shape, b_y[0] # one-hot encoded matrix, should be batch_size X num_labels
+activations = layer(b_X)
+activations = torch.functional.F.relu(activations)
+activations.shape, activations
+class brainage(torch.nn.Module):
+  def __init__(self, n_genes, n_labels):
+    super(brainage, self).__init__()
+    
+    self.n_genes = n_genes # number of genes in input
+    self.n_labels = n_labels # number of possible cell types
+
+    self.layers = torch.nn.Sequential(
+      torch.nn.Linear(in_features=n_genes, out_features=1028), # layer 1
+      torch.nn.ReLU(),
+      torch.nn.Dropout(p=.2), # randomly zero 20% of input tensor, helps with generalization
+      torch.nn.Linear(in_features=1028, out_features=256), # layer 2
+      torch.nn.ReLU(),
+      torch.nn.Dropout(p=.2), # randomly zero 20% of input tensor, helps with generalization
+      torch.nn.Linear(in_features=256, out_features=128), # layer 3
+      torch.nn.ReLU(),
+    )
+
+    self.final_layer = torch.nn.Sequential(
+        torch.nn.Linear(in_features=128, out_features=self.n_labels), # output layer must be the same length as the total number of classes
+        torch.nn.Softmax(dim=1), # creates prediction probabilities
+    )
+
+    self.loss_function = torch.nn.CrossEntropyLoss() # we will use cross entropy loss
+
+  def calculate_loss(self, predicted, target):
+    return self.loss_function(predicted, target) # use cross entropy to calculate loss
+
+  def final_activations(self, x):
+    """Return activations of second to last layer"""
+    return self.layers(x)
+  
+  def forward(self, x):
+    """
+    Defines how activations are propogated through the network.
+
+    In our case, they go through four layers followed by a softmax function.
+    """
+    x = self.layers(x)
+    x = self.final_layer(x)
+    return x
+stage_ids = sorted(set(adata.obs['stage_id']))
+stage_ids
+model = brainage(n_genes, len(stage_ids))
+model
+# Hyperparameters
+n_epochs = 5
+lr = 0.0001
+optimizer = torch.optim.Adam(model.parameters(), lr=lr)
+def accuracy(y_pred, y_true):
+  """helper accuracy function"""
+  if y_pred.is_cuda:
+    y_pred, y_true = y_pred.detach(), y_true.detach()
+    pred_labels = torch.argmax(y_pred, dim=1)
+    true_labels = torch.argmax(y_true, dim=1)
+        # Check for an empty tensor (no predictions or targets)
+    if len(pred_labels) == 0 or len(true_labels) == 0:
+        return 0.0
+    
+    accuracy = (pred_labels == true_labels).float().mean().item()
+    return accuracy
+train_losses, val_losses, train_accs, val_accs = [], [], [], [] # track training history
+for i in range(n_epochs):
+  train_loss, val_loss = 0., 0.
+  train_acc, val_acc = 0., 0.
+
+  # training
+  model.train()
+  for x, y in PN_train_dataloader:
+    
+
+    optimizer.zero_grad() # optimizer gradients need to be zeroed on every batch
+    if len(x) > 0:
+       probs = model(x) # get output probabilities from model
+       loss = model.calculate_loss(probs, y) # calculate loss for predictions vs. targets
+       train_loss += loss.item() # add loss for batch to total training loss
+       train_acc += accuracy(probs, y) # add accuracy for batch to total training accuracy
+
+       loss.backward() # propogate gradients
+       optimizer.step() # adjust model parameters based on loss
+
+  # validation
+  model.eval()
+  with torch.no_grad(): # we dont want to update parameters during validation.
+    for x, y in PN_val_dataloader:
+      if len(x) > 0:
+          probs = model(x) # get output probabilities from model
+          loss = model.calculate_loss(probs, y) # calculate loss for predictions vs. targets
+          val_loss += loss.item() # add loss for batch to total validation loss
+          val_acc += accuracy(probs, y) # add accuracy for batch to total validation accuracy
+
+  # scale metrics to total number of batches
+  if len(PN_train_dataloader)> 0:
+     train_loss /= len(PN_train_dataloader) # scale to total number of batches
+     train_acc /= len(PN_train_dataloader) # scale to total number of batches
+  if len(PN_val_dataloader)> 0:
+     val_loss /= len(PN_val_dataloader) # scale to total number of batches
+     val_acc /= len(PN_val_dataloader) # scale to total number of batches
+
+  train_losses.append(train_loss)
+  val_losses.append(val_loss)
+  train_accs.append(train_acc)
+  val_accs.append(val_acc)
+
+  # print metrics for epoch
+  print(f'Epoch: {i}, Train loss: {train_loss}, Val loss: {val_loss}, Train acc: {train_acc}, Val acc: {val_acc}')
