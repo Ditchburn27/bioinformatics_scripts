@@ -1,2 +1,3 @@
 .DS_Store
 RNA_seq_scripts/.Rhistory
+snRNA-seq/braindev_age_prediction/__pycache__/

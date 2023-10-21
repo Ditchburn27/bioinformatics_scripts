@@ -4,7 +4,9 @@ from sklearn.model_selection import train_test_split
 
 
 # Function to downsample data to a set number of cells based on the density of the data
-def density_ds (adata, num_cells = 10000):
+def density_ds (adata, target_variable = 'numerical_age'):
+    # Calculate number of cells that accounts for 80% of the dataset
+    num_cells = 0.8*len(adata.obs)
     # Extract distances from adata and store it in udist
     udist = adata.obsp['distances']
     # Compute the sum of distances for each cell and convert to 1D array
@@ -21,9 +23,17 @@ def density_ds (adata, num_cells = 10000):
     adata.obs['norm_density'] = mxdens / sum(mxdens)
     # Randomly select num_cells from adata based on the normalized density values
     bcs = np.random.choice(adata.obs_names, size=num_cells, replace=False, p=adata.obs['norm_density'])
-    # Subset adata to include only the selected cells
-    ds_adata = adata[bcs]
-    return ds_adata
+    # Subset adata to train and test sets
+    X_train = adata.X[bcs]
+    X_test = adata.X[~bcs]
+    y_train = adata.obs[target_variable][bcs]
+    y_test = adata.obs[target_variable][~bcs]
+    print(f"X_train shape is: {X_train.shape}")
+    print(f"X_test shape is: {X_test.shape}")
+    print(f"y_train shape is: {y_train.shape}")
+    print(f"y_test shape is: {y_test.shape}")
+
+    return X_train, X_test, y_train, y_test
 
 ###################################################################################
 ###################################################################################
@@ -87,6 +97,10 @@ def equal_split_adata (adata, target_variable ='numerical_age'):
     X_test = adata.X[test_indices]
     y_train = adata.obs[target_variable][train_indices] 
     y_test = adata.obs[target_variable][test_indices]
+    print(f"X_train shape is: {X_train.shape}")
+    print(f"X_test shape is: {X_test.shape}")
+    print(f"y_train shape is: {y_train.shape}")
+    print(f"y_test shape is: {y_test.shape}")
     return X_train, X_test, y_train, y_test
 
     
