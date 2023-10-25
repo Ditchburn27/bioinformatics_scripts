@@ -1,6 +1,8 @@
 import scanpy as sc
 import numpy as np
 from sklearn.model_selection import train_test_split
+from geosketch import gs
+import pandas as pd
 
 
 # Function to downsample data to a set number of cells based on the density of the data
@@ -44,13 +46,11 @@ def split_adata(adata, split=0.8, target_variable='numerical_age'):
     split = split
     train_barcodes = np.random.choice(adata.obs.index, replace = False, size= int(split * adata.shape[0]))
     test_barcodes = np.asarray([barcode for barcode in adata.obs.index if barcode not in set(train_barcodes)])
-    train_adata = adata[train_barcodes]
-    test_adata = adata[test_barcodes]
     # generate train and test data by extracting matrices from adata.X
-    X_train = train_adata.X
-    X_test = test_adata.X
-    y_train = train_adata.obs[target_variable].to_numpy().reshape(-1,1)
-    y_test = test_adata.obs[target_variable].to_numpy().reshape(-1,1)
+    X_train = adata.X[train_barcodes]
+    X_test = adata.X[test_barcodes]
+    y_train = adata.obs[target_variable][train_barcodes]
+    y_test = adata.obs[target_variable][test_barcodes]
     print(f"X_train shape is: {X_train.shape}")
     print(f"X_test shape is: {X_test.shape}")
     print(f"y_train shape is: {y_train.shape}")
@@ -103,5 +103,35 @@ def equal_split_adata (adata, target_variable ='numerical_age'):
     print(f"y_test shape is: {y_test.shape}")
     return X_train, X_test, y_train, y_test
 
-    
+###################################################################################
+###################################################################################
+
+# Function to split anndata into train and test data using geosketching
+# Need to start with an anndata object that has already had PCA run on it
+def geosplit (adata, split = 0.8, target_variable = 'numerical_age'):
+    split = split
+    # Geosketching to get 80% of the dataset
+    N = int(split*len(adata.obs))
+    sketch_index = gs(adata.obsm['X_pca'], N, replace = False)
+    # Create a list of the train indicies (80% geosketch)
+    # and a list of the test indicies (remaining 20%)
+    df = adata.obsm['X_pca']
+    df = pd.DataFrame.from_records(df)
+    df_sketch = df.iloc[sketch_index, :]
+    train_indices = df_sketch.index.to_list()
+    all_indices = df.index.to_list()
+    test_indices = list(set(all_indices).difference(train_indices))
+    # Subset with the train and test indicies to generate the datasets
+    X_train = adata.X[train_indices]
+    X_test = adata.X[test_indices]
+    y_train = adata.obs[target_variable][train_indices] 
+    y_test = adata.obs[target_variable][test_indices]
+    print(f"X_train shape is: {X_train.shape}")
+    print(f"X_test shape is: {X_test.shape}")
+    print(f"y_train shape is: {y_train.shape}")
+    print(f"y_test shape is: {y_test.shape}")
+    return X_train, X_test, y_train, y_test
+
+
+
 
