@@ -6,7 +6,7 @@ import pandas as pd
 
 
 # Function to downsample data to a set number of cells based on the density of the data
-def density_ds (adata, target_variable = 'numerical_age'):
+def density_split (adata, target_variable = 'numerical_age'):
     # Calculate number of cells that accounts for 80% of the dataset
     num_cells = 0.8*len(adata.obs)
     # Extract distances from adata and store it in udist
@@ -42,7 +42,7 @@ def density_ds (adata, target_variable = 'numerical_age'):
 
 # Function to randomly split anndata object into train and test subsets
 # 80% for training and 20% for testing
-def split_adata(adata, split=0.8, target_variable='numerical_age'):
+def random_split(adata, split=0.8, target_variable='numerical_age'):
     split = split
     train_barcodes = np.random.choice(adata.obs.index, replace = False, size= int(split * adata.shape[0]))
     test_barcodes = np.asarray([barcode for barcode in adata.obs.index if barcode not in set(train_barcodes)])
@@ -63,7 +63,7 @@ def split_adata(adata, split=0.8, target_variable='numerical_age'):
 # Function to split anndata object into train and test
 # 80% of cells from each sample (adata.obs['batch']) will be allocated for training
 # 20% of cells from each sample will be allocated for testing
-def equal_split_adata (adata, target_variable ='numerical_age'):
+def batch_split (adata, target_variable ='numerical_age'):
     # Identiies the unique batches or samples in adata
     unique_batches = adata.obs['batch'].unique()
     # Calculate the number of cells to be included from each batch for 80% training
