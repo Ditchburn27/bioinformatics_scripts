@@ -8,7 +8,7 @@ import pandas as pd
 # Function to downsample data to a set number of cells based on the density of the data
 def density_split (adata, target_variable = 'numerical_age'):
     # Calculate number of cells that accounts for 80% of the dataset
-    num_cells = 0.8*len(adata.obs)
+    num_cells = int(0.8*len(adata.obs))
     # Extract distances from adata and store it in udist
     udist = adata.obsp['distances']
     # Compute the sum of distances for each cell and convert to 1D array
@@ -26,10 +26,12 @@ def density_split (adata, target_variable = 'numerical_age'):
     # Randomly select num_cells from adata based on the normalized density values
     bcs = np.random.choice(adata.obs_names, size=num_cells, replace=False, p=adata.obs['norm_density'])
     # Subset adata to train and test sets
-    X_train = adata.X[bcs]
-    X_test = adata.X[~bcs]
-    y_train = adata.obs[target_variable][bcs]
-    y_test = adata.obs[target_variable][~bcs]
+    train_adata = adata[bcs].copy()
+    test_adata = adata[~bcs].copy()
+    X_train = train_adata.X
+    X_test = test_adata.X
+    y_train = train_adata.obs[target_variable].to_np().reshape(-1, 1)
+    y_test = test_adata.obs[target_variable].to_np().reshape(-1, 1)
     print(f"X_train shape is: {X_train.shape}")
     print(f"X_test shape is: {X_test.shape}")
     print(f"y_train shape is: {y_train.shape}")
@@ -46,11 +48,13 @@ def random_split(adata, split=0.8, target_variable='numerical_age'):
     split = split
     train_barcodes = np.random.choice(adata.obs.index, replace = False, size= int(split * adata.shape[0]))
     test_barcodes = np.asarray([barcode for barcode in adata.obs.index if barcode not in set(train_barcodes)])
+    train_adata = adata[train_barcodes].copy()
+    test_adata = adata[test_barcodes].copy()
     # generate train and test data by extracting matrices from adata.X
-    X_train = adata.X[train_barcodes]
-    X_test = adata.X[test_barcodes]
-    y_train = adata.obs[target_variable][train_barcodes]
-    y_test = adata.obs[target_variable][test_barcodes]
+    X_train = train_adata.X
+    X_test = test_adata.X
+    y_train = train_adata.obs[target_variable].to_np().reshape(-1, 1)
+    y_test = test_adata.obs[target_variable].to_np().reshape(-1, 1)
     print(f"X_train shape is: {X_train.shape}")
     print(f"X_test shape is: {X_test.shape}")
     print(f"y_train shape is: {y_train.shape}")
