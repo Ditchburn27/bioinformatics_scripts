@@ -30,8 +30,8 @@ def density_split (adata, target_variable = 'numerical_age'):
     test_adata = adata[~bcs].copy()
     X_train = train_adata.X
     X_test = test_adata.X
-    y_train = train_adata.obs[target_variable].to_np().reshape(-1, 1)
-    y_test = test_adata.obs[target_variable].to_np().reshape(-1, 1)
+    y_train = train_adata.obs[target_variable].to_numpy().reshape(-1, 1)
+    y_test = test_adata.obs[target_variable].to_numpy().reshape(-1, 1)
     print(f"X_train shape is: {X_train.shape}")
     print(f"X_test shape is: {X_test.shape}")
     print(f"y_train shape is: {y_train.shape}")
@@ -48,13 +48,13 @@ def random_split(adata, split=0.8, target_variable='numerical_age'):
     split = split
     train_barcodes = np.random.choice(adata.obs.index, replace = False, size= int(split * adata.shape[0]))
     test_barcodes = np.asarray([barcode for barcode in adata.obs.index if barcode not in set(train_barcodes)])
-    train_adata = adata[train_barcodes].copy()
-    test_adata = adata[test_barcodes].copy()
+    train_adata = adata[train_barcodes]
+    test_adata = adata[test_barcodes]
     # generate train and test data by extracting matrices from adata.X
     X_train = train_adata.X
     X_test = test_adata.X
-    y_train = train_adata.obs[target_variable].to_np().reshape(-1, 1)
-    y_test = test_adata.obs[target_variable].to_np().reshape(-1, 1)
+    y_train = train_adata.obs[target_variable].to_numpy().reshape(-1, 1)
+    y_test = test_adata.obs[target_variable].to_numpy().reshape(-1, 1)
     print(f"X_train shape is: {X_train.shape}")
     print(f"X_test shape is: {X_test.shape}")
     print(f"y_train shape is: {y_train.shape}")
