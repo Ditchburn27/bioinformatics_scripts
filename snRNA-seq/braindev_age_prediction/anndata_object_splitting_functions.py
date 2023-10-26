@@ -6,9 +6,10 @@ import pandas as pd
 
 
 # Function to downsample data to a set number of cells based on the density of the data
-def density_split (adata, target_variable = 'numerical_age'):
+def density_split (adata, target_variable = 'numerical_age', split = 0.8):
     # Calculate number of cells that accounts for 80% of the dataset
-    num_cells = int(0.8*len(adata.obs))
+    split = split
+    num_cells = int(split*len(adata.obs))
     # Extract distances from adata and store it in udist
     udist = adata.obsp['distances']
     # Compute the sum of distances for each cell and convert to 1D array
@@ -25,9 +26,13 @@ def density_split (adata, target_variable = 'numerical_age'):
     adata.obs['norm_density'] = mxdens / sum(mxdens)
     # Randomly select num_cells from adata based on the normalized density values
     bcs = np.random.choice(adata.obs_names, size=num_cells, replace=False, p=adata.obs['norm_density'])
+    test_bcs = []
+    for barcode in adata.obs.index:
+                if barcode not in set(bcs):
+                        test_bcs.append(barcode)
     # Subset adata to train and test sets
     train_adata = adata[bcs].copy()
-    test_adata = adata[~bcs].copy()
+    test_adata = adata[test_bcs].copy()
     X_train = train_adata.X
     X_test = test_adata.X
     y_train = train_adata.obs[target_variable].to_numpy().reshape(-1, 1)
@@ -67,12 +72,13 @@ def random_split(adata, split=0.8, target_variable='numerical_age'):
 # Function to split anndata object into train and test
 # 80% of cells from each sample (adata.obs['batch']) will be allocated for training
 # 20% of cells from each sample will be allocated for testing
-def batch_split (adata, target_variable ='numerical_age'):
+def batch_split (adata, target_variable ='numerical_age', split = 0.8):
     # Identiies the unique batches or samples in adata
     unique_batches = adata.obs['batch'].unique()
     # Calculate the number of cells to be included from each batch for 80% training
+    split = split
     n_train_cells_per_batch = {
-        batch: int(0.8 * len(adata.obs[adata.obs['batch'] == batch]))
+        batch: int(split * len(adata.obs[adata.obs['batch'] == batch]))
         for batch in unique_batches}
     # Calculate the number of cells to be included from each batch for testing
     n_test_cells_per_batch = {
