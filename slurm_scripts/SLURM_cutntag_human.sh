@@ -24,7 +24,7 @@ conda activate /group/ll005/envs/cutntag
 #  These are generic variables
 JOBNAME=${SLURM_JOB_NAME}
 SCRATCH=$MYSCRATCH/$JOBNAME/$SLURM_JOBID
-BOWTIE2_INDEX=/group/ll005/reference/bowtie2_hg38/hg38
+BOWTIE2_INDEX=/group/ll005/reference/bowtie2_hg38/hg38/GRCh38_noalt_as
 BLACKLIST=/group/ll005/reference/bowtie2_hg38/blacklist/hg38-blacklist.v2.bed
 ###############################################
 # Creates a unique directory in the SCRATCH directory for this job to run in.
