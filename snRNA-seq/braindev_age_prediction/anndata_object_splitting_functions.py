@@ -33,10 +33,10 @@ def density_split (adata, target_variable = 'numerical_age', split = 0.8):
     # Subset adata to train and test sets
     train_adata = adata[bcs].copy()
     test_adata = adata[test_bcs].copy()
-    X_train = train_adata.X
-    X_test = test_adata.X
-    y_train = train_adata.obs[target_variable]
-    y_test = test_adata.obs[target_variable]
+    X_train = train_adata.to_df()
+    X_test = test_adata.to_df()
+    y_train = sc.get.obs_df(train_adata, keys=target_variable)
+    y_test = sc.get.obs_df(test_adata, keys=target_variable)
     print(f"X_train shape is: {X_train.shape}")
     print(f"X_test shape is: {X_test.shape}")
     print(f"y_train shape is: {y_train.shape}")
@@ -56,10 +56,10 @@ def random_split(adata, split=0.8, target_variable='numerical_age'):
     train_adata = adata[train_barcodes]
     test_adata = adata[test_barcodes]
     # generate train and test data by extracting matrices from adata.X
-    X_train = train_adata.X
-    X_test = test_adata.X
-    y_train = train_adata.obs[target_variable]
-    y_test = test_adata.obs[target_variable]
+    X_train = train_adata.to_df()
+    X_test = test_adata.to_df()
+    y_train = sc.get.obs_df(train_adata, keys=target_variable)
+    y_test = sc.get.obs_df(test_adata, keys=target_variable)
     print(f"X_train shape is: {X_train.shape}")
     print(f"X_test shape is: {X_test.shape}")
     print(f"y_train shape is: {y_train.shape}")
@@ -103,10 +103,12 @@ def batch_split (adata, target_variable ='numerical_age', split = 0.8):
          train_indices = np.concatenate((train_indices, train_batch_indices))
          test_indices = np.concatenate((test_indices, test_batch_indices))
     # Subset with the train and test indicies to generate the datasets     
-    X_train = adata.X[train_indices]
-    X_test = adata.X[test_indices]
-    y_train = adata.obs[target_variable][train_indices] 
-    y_test = adata.obs[target_variable][test_indices]
+    train_adata = adata[train_indices]
+    test_adata = adata[test_indices]
+    X_train = train_adata.to_df()
+    X_test = test_adata.to_df()
+    y_train = sc.get.obs_df(train_adata, keys=target_variable)
+    y_test = sc.get.obs_df(test_adata, keys=target_variable)
     print(f"X_train shape is: {X_train.shape}")
     print(f"X_test shape is: {X_test.shape}")
     print(f"y_train shape is: {y_train.shape}")
@@ -132,10 +134,12 @@ def geosplit (adata, split = 0.8, target_variable = 'numerical_age'):
     all_indices = df.index.to_list()
     test_indices = list(set(all_indices).difference(train_indices))
     # Subset with the train and test indicies to generate the datasets
-    X_train = adata.X[train_indices]
-    X_test = adata.X[test_indices]
-    y_train = adata.obs[target_variable][train_indices] 
-    y_test = adata.obs[target_variable][test_indices]
+    train_adata = adata[train_indices]
+    test_adata = adata[test_indices]
+    X_train = train_adata.to_df()
+    X_test = test_adata.to_df()
+    y_train = sc.get.obs_df(train_adata, keys=target_variable)
+    y_test = sc.get.obs_df(test_adata, keys=target_variable)
     print(f"X_train shape is: {X_train.shape}")
     print(f"X_test shape is: {X_test.shape}")
     print(f"y_train shape is: {y_train.shape}")
