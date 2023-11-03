@@ -31,8 +31,8 @@ def density_split (adata, target_variable = 'numerical_age', split = 0.8):
                 if barcode not in set(bcs):
                         test_bcs.append(barcode)
     # Subset adata to train and test sets
-    train_adata = adata[bcs].copy()
-    test_adata = adata[test_bcs].copy()
+    train_adata = adata[bcs]
+    test_adata = adata[test_bcs]
     X_train = train_adata.to_df()
     X_test = test_adata.to_df()
     y_train = sc.get.obs_df(train_adata, keys=target_variable)
