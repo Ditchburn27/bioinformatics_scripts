@@ -1,0 +1,688 @@
+
+# Start of job
+echo $SLURM_JOB_NAME job started at  `date`
+model_training job started at Thu Nov 30 16:33:54 AWST 2023
+
+# To compile with the GNU toolchain
+module load Anaconda3/2020.11
+MANPATH=/uwahpc/centos8/python/anaconda3/share/man:::/opt/puppetlabs/puppet/share/man; export MANPATH;
+LOADEDMODULES=Anaconda3/2020.11; export LOADEDMODULES;
+_LMFILES_=/uwahpc/centos8/modulefiles/python/Anaconda3/2020.11; export _LMFILES_;
+MANPATH_modshare=:1:/uwahpc/centos8/python/anaconda3/share/man:1:/opt/puppetlabs/puppet/share/man:1; export MANPATH_modshare;
+MODULES_LMALTNAME=Anaconda3/2020.11\&Anaconda3/default\&Anaconda3; export MODULES_LMALTNAME;
+MODULES_LMALTNAME_modshare=Anaconda3/2020.11\&Anaconda3/default\&Anaconda3:1; export MODULES_LMALTNAME_modshare;
+CONDA_EXE=/uwahpc/centos8/python/anaconda3/bin/conda; export CONDA_EXE;
+CONDA_PYTHON_EXE=/uwahpc/centos8/python/anaconda3/bin/python; export CONDA_PYTHON_EXE;
+LOADEDMODULES_modshare=Anaconda3/2020.11:1; export LOADEDMODULES_modshare;
+_LMFILES__modshare=/uwahpc/centos8/modulefiles/python/Anaconda3/2020.11:1; export _LMFILES__modshare;
+PATH=/group/ll005/apps/cellranger-7.1.0:/group/ll005/apps/cellranger-7.1.0:/uwahpc/centos8/python/anaconda3/bin:/uwahpc/centos8/python/anaconda3/condabin:/usr/share/Modules/bin:/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/opt/puppetlabs/bin:/group/ll005/lditchburn/bin:/group/llshared/scripts/sequencing:/group/ll005/lditchburn/bin/:/group/llshared/scripts/sequencing/; export PATH;
+PATH_modshare=/usr/bin:1:/uwahpc/centos8/python/anaconda3/bin:2:/usr/share/Modules/bin:1:/usr/local/bin:1:/group/ll005/lditchburn/bin/:1:/group/ll005/lditchburn/bin:1:/group/llshared/scripts/sequencing/:1:/opt/puppetlabs/bin:1:/group/ll005/apps/cellranger-7.1.0:1:/group/llshared/scripts/sequencing:1:/usr/sbin:1:/usr/local/sbin:1:/uwahpc/centos8/python/anaconda3/condabin:1; export PATH_modshare;
+test 0;
+conda activate /group/ll005/envs/scrna
+PS1='(scrna) ${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
+export PATH='/group/ll005/apps/cellranger-7.1.0:/group/ll005/apps/cellranger-7.1.0:/group/ll005/envs/scrna/bin:/uwahpc/centos8/python/anaconda3/condabin:/usr/share/Modules/bin:/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/opt/puppetlabs/bin:/group/ll005/lditchburn/bin:/group/llshared/scripts/sequencing:/group/ll005/lditchburn/bin:/group/llshared/scripts/sequencing'
+export CONDA_PREFIX='/group/ll005/envs/scrna'
+export CONDA_SHLVL='2'
+export CONDA_DEFAULT_ENV='scrna'
+export CONDA_PROMPT_MODIFIER='(scrna) '
+export CONDA_EXE='/uwahpc/centos8/python/anaconda3/bin/conda'
+export _CE_M=''
+export _CE_CONDA=''
+export CONDA_PYTHON_EXE='/uwahpc/centos8/python/anaconda3/bin/python'
+export CONDA_PREFIX_1='/uwahpc/centos8/python/anaconda3'
+. "/group/ll005/envs/scrna/etc/conda/activate.d/libglib_activate.sh"
+export GSETTINGS_SCHEMA_DIR_CONDA_BACKUP="${GSETTINGS_SCHEMA_DIR:-}"
+export GSETTINGS_SCHEMA_DIR="$CONDA_PREFIX/share/glib-2.0/schemas"
+. "/group/ll005/envs/scrna/etc/conda/activate.d/libxml2_activate.sh"
+#! /bin/sh
+
+if test -n "${XML_CATALOG_FILES:-}"; then
+    xml_catalog_files_libxml2="${XML_CATALOG_FILES}"
+    XML_CATALOG_FILES="${XML_CATALOG_FILES} "
+else
+    xml_catalog_files_libxml2=""
+    XML_CATALOG_FILES=""
+fi
+
+
+# Replace space with '%20'; equivalent to
+# conda_catalog_files=${CONDA_PREFIX// /%20}, except trailing space is
+# ignored.
+conda_catalog_files=""
+ifs_libxml2="${IFS}"
+IFS=" "
+rem="${CONDA_PREFIX}"
+for pre in ${rem}; do
+    while test "${rem#"${pre}"}" = "${rem}"; do
+	conda_catalog_files="${conda_catalog_files}%20"
+	rem=${rem#" "}
+    done
+    conda_catalog_files="${conda_catalog_files}${pre}"
+    rem=${rem#"${pre}"}
+done
+IFS="${ifs_libxml2}"
+
+conda_catalog_files="file://${conda_catalog_files}/etc/xml/catalog file:///etc/xml/catalog"
+export XML_CATALOG_FILES="${XML_CATALOG_FILES}${conda_catalog_files}"
+unset conda_catalog_files ifs_libxml2 rem
+
+#  Note: SLURM_JOBID is a unique number for every job.
+#  These are generic variables
+JOBNAME=${SLURM_JOB_NAME}
+
+if [ -z "$1" ]
+then
+      echo -ne "
+      ################\n
+      First argument is empty. Please provide path to python script.\n
+      ################\n"
+      exit 1
+else
+      PYTHON_SCRIPT=$1
+
+
+      echo -ne "\nPath to  path to python script is\n\t${PYTHON_SCRIPT}\n"
+fi
+
+Path to  path to python script is
+	20231130_elasticnet_hyperparameter_tuning_intersecting_genes.py
+
+python $PYTHON_SCRIPT
+X_train shape is: (38229, 23884)
+X_test shape is: (9558, 23884)
+y_train shape is: (38229,)
+y_test shape is: (9558,)
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/base.py:1151: UserWarning: With alpha=0, this algorithm does not converge well. You are advised to use the LinearRegression estimator
+  return fit_method(estimator, *args, **kwargs)
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/base.py:1151: UserWarning: With alpha=0, this algorithm does not converge well. You are advised to use the LinearRegression estimator
+  return fit_method(estimator, *args, **kwargs)
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/base.py:1151: UserWarning: With alpha=0, this algorithm does not converge well. You are advised to use the LinearRegression estimator
+  return fit_method(estimator, *args, **kwargs)
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/base.py:1151: UserWarning: With alpha=0, this algorithm does not converge well. You are advised to use the LinearRegression estimator
+  return fit_method(estimator, *args, **kwargs)
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/base.py:1151: UserWarning: With alpha=0, this algorithm does not converge well. You are advised to use the LinearRegression estimator
+  return fit_method(estimator, *args, **kwargs)
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/base.py:1151: UserWarning: With alpha=0, this algorithm does not converge well. You are advised to use the LinearRegression estimator
+  return fit_method(estimator, *args, **kwargs)
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/base.py:1151: UserWarning: With alpha=0, this algorithm does not converge well. You are advised to use the LinearRegression estimator
+  return fit_method(estimator, *args, **kwargs)
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/base.py:1151: UserWarning: With alpha=0, this algorithm does not converge well. You are advised to use the LinearRegression estimator
+  return fit_method(estimator, *args, **kwargs)
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/base.py:1151: UserWarning: With alpha=0, this algorithm does not converge well. You are advised to use the LinearRegression estimator
+  return fit_method(estimator, *args, **kwargs)
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/base.py:1151: UserWarning: With alpha=0, this algorithm does not converge well. You are advised to use the LinearRegression estimator
+  return fit_method(estimator, *args, **kwargs)
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: UserWarning: Coordinate descent with no regularization may lead to unexpected results and is discouraged.
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: UserWarning: Coordinate descent with no regularization may lead to unexpected results and is discouraged.
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: UserWarning: Coordinate descent with no regularization may lead to unexpected results and is discouraged.
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: UserWarning: Coordinate descent with no regularization may lead to unexpected results and is discouraged.
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: UserWarning: Coordinate descent with no regularization may lead to unexpected results and is discouraged.
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: UserWarning: Coordinate descent with no regularization may lead to unexpected results and is discouraged.
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: UserWarning: Coordinate descent with no regularization may lead to unexpected results and is discouraged.
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: UserWarning: Coordinate descent with no regularization may lead to unexpected results and is discouraged.
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: UserWarning: Coordinate descent with no regularization may lead to unexpected results and is discouraged.
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: UserWarning: Coordinate descent with no regularization may lead to unexpected results and is discouraged.
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 2.447e+03, tolerance: 3.653e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 1.817e+03, tolerance: 3.471e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 2.208e+03, tolerance: 3.620e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 2.482e+03, tolerance: 4.969e+01
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 5.373e+04, tolerance: 3.661e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 5.843e+04, tolerance: 3.653e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 2.752e+03, tolerance: 4.969e+01
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 5.891e+04, tolerance: 3.653e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 5.560e+04, tolerance: 3.620e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 9.920e+02, tolerance: 3.661e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 5.108e+04, tolerance: 3.620e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 6.173e+04, tolerance: 3.471e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 6.751e+04, tolerance: 3.471e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 3.821e+04, tolerance: 3.661e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 3.521e+04, tolerance: 3.471e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 4.914e+04, tolerance: 3.620e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 6.970e+04, tolerance: 3.661e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 5.833e+04, tolerance: 3.653e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 2.097e+04, tolerance: 3.653e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 2.085e+04, tolerance: 3.471e+02 Linear regression models with null weight for the l1 regularization term are more efficiently fitted using one of the solvers implemented in sklearn.linear_model.Ridge/RidgeCV instead.
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 2.212e+04, tolerance: 3.653e+02 Linear regression models with null weight for the l1 regularization term are more efficiently fitted using one of the solvers implemented in sklearn.linear_model.Ridge/RidgeCV instead.
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 2.201e+04, tolerance: 3.620e+02 Linear regression models with null weight for the l1 regularization term are more efficiently fitted using one of the solvers implemented in sklearn.linear_model.Ridge/RidgeCV instead.
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 2.073e+04, tolerance: 3.661e+02 Linear regression models with null weight for the l1 regularization term are more efficiently fitted using one of the solvers implemented in sklearn.linear_model.Ridge/RidgeCV instead.
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 3.576e+03, tolerance: 4.969e+01 Linear regression models with null weight for the l1 regularization term are more efficiently fitted using one of the solvers implemented in sklearn.linear_model.Ridge/RidgeCV instead.
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 2.085e+04, tolerance: 3.471e+02 Linear regression models with null weight for the l1 regularization term are more efficiently fitted using one of the solvers implemented in sklearn.linear_model.Ridge/RidgeCV instead.
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 2.212e+04, tolerance: 3.653e+02 Linear regression models with null weight for the l1 regularization term are more efficiently fitted using one of the solvers implemented in sklearn.linear_model.Ridge/RidgeCV instead.
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/base.py:1151: UserWarning: With alpha=0, this algorithm does not converge well. You are advised to use the LinearRegression estimator
+  return fit_method(estimator, *args, **kwargs)
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 2.201e+04, tolerance: 3.620e+02 Linear regression models with null weight for the l1 regularization term are more efficiently fitted using one of the solvers implemented in sklearn.linear_model.Ridge/RidgeCV instead.
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/base.py:1151: UserWarning: With alpha=0, this algorithm does not converge well. You are advised to use the LinearRegression estimator
+  return fit_method(estimator, *args, **kwargs)
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/base.py:1151: UserWarning: With alpha=0, this algorithm does not converge well. You are advised to use the LinearRegression estimator
+  return fit_method(estimator, *args, **kwargs)
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 2.073e+04, tolerance: 3.661e+02 Linear regression models with null weight for the l1 regularization term are more efficiently fitted using one of the solvers implemented in sklearn.linear_model.Ridge/RidgeCV instead.
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/base.py:1151: UserWarning: With alpha=0, this algorithm does not converge well. You are advised to use the LinearRegression estimator
+  return fit_method(estimator, *args, **kwargs)
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: UserWarning: Coordinate descent with no regularization may lead to unexpected results and is discouraged.
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/base.py:1151: UserWarning: With alpha=0, this algorithm does not converge well. You are advised to use the LinearRegression estimator
+  return fit_method(estimator, *args, **kwargs)
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: UserWarning: Coordinate descent with no regularization may lead to unexpected results and is discouraged.
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: UserWarning: Coordinate descent with no regularization may lead to unexpected results and is discouraged.
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: UserWarning: Coordinate descent with no regularization may lead to unexpected results and is discouraged.
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 3.576e+03, tolerance: 4.969e+01 Linear regression models with null weight for the l1 regularization term are more efficiently fitted using one of the solvers implemented in sklearn.linear_model.Ridge/RidgeCV instead.
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: UserWarning: Coordinate descent with no regularization may lead to unexpected results and is discouraged.
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 1.354e+04, tolerance: 3.661e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 5.675e+03, tolerance: 4.969e+01
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 9.972e+03, tolerance: 3.471e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 2.517e+04, tolerance: 3.620e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 3.893e+03, tolerance: 3.661e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 7.441e+04, tolerance: 3.471e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 6.993e+04, tolerance: 3.620e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 7.096e+04, tolerance: 3.661e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 8.774e+03, tolerance: 3.620e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 4.852e+03, tolerance: 3.653e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 4.690e+03, tolerance: 3.471e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 6.790e+04, tolerance: 3.653e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 3.654e+04, tolerance: 3.653e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 3.579e+04, tolerance: 3.620e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 2.990e+04, tolerance: 3.471e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 3.597e+04, tolerance: 3.661e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 7.796e+04, tolerance: 3.653e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 4.532e+04, tolerance: 3.661e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 7.517e+04, tolerance: 3.620e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 3.803e+04, tolerance: 3.661e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 3.764e+03, tolerance: 3.661e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 1.659e+03, tolerance: 4.969e+01
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 4.025e+04, tolerance: 3.471e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 4.339e+03, tolerance: 3.471e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 1.983e+03, tolerance: 4.969e+01
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 6.747e+04, tolerance: 3.653e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 7.087e+04, tolerance: 3.620e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 4.805e+03, tolerance: 3.653e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 4.036e+04, tolerance: 3.471e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 2.212e+04, tolerance: 3.653e+02 Linear regression models with null weight for the l1 regularization term are more efficiently fitted using one of the solvers implemented in sklearn.linear_model.Ridge/RidgeCV instead.
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/base.py:1151: UserWarning: With alpha=0, this algorithm does not converge well. You are advised to use the LinearRegression estimator
+  return fit_method(estimator, *args, **kwargs)
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 2.085e+04, tolerance: 3.471e+02 Linear regression models with null weight for the l1 regularization term are more efficiently fitted using one of the solvers implemented in sklearn.linear_model.Ridge/RidgeCV instead.
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/base.py:1151: UserWarning: With alpha=0, this algorithm does not converge well. You are advised to use the LinearRegression estimator
+  return fit_method(estimator, *args, **kwargs)
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 8.172e+03, tolerance: 3.620e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/base.py:1151: UserWarning: With alpha=0, this algorithm does not converge well. You are advised to use the LinearRegression estimator
+  return fit_method(estimator, *args, **kwargs)
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: UserWarning: Coordinate descent with no regularization may lead to unexpected results and is discouraged.
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: UserWarning: Coordinate descent with no regularization may lead to unexpected results and is discouraged.
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: UserWarning: Coordinate descent with no regularization may lead to unexpected results and is discouraged.
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 2.073e+04, tolerance: 3.661e+02 Linear regression models with null weight for the l1 regularization term are more efficiently fitted using one of the solvers implemented in sklearn.linear_model.Ridge/RidgeCV instead.
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/base.py:1151: UserWarning: With alpha=0, this algorithm does not converge well. You are advised to use the LinearRegression estimator
+  return fit_method(estimator, *args, **kwargs)
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: UserWarning: Coordinate descent with no regularization may lead to unexpected results and is discouraged.
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 2.201e+04, tolerance: 3.620e+02 Linear regression models with null weight for the l1 regularization term are more efficiently fitted using one of the solvers implemented in sklearn.linear_model.Ridge/RidgeCV instead.
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/base.py:1151: UserWarning: With alpha=0, this algorithm does not converge well. You are advised to use the LinearRegression estimator
+  return fit_method(estimator, *args, **kwargs)
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: UserWarning: Coordinate descent with no regularization may lead to unexpected results and is discouraged.
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 2.319e+03, tolerance: 4.969e+01
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 5.711e+04, tolerance: 3.661e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 3.576e+03, tolerance: 4.969e+01 Linear regression models with null weight for the l1 regularization term are more efficiently fitted using one of the solvers implemented in sklearn.linear_model.Ridge/RidgeCV instead.
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 6.117e+04, tolerance: 3.620e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 6.545e+04, tolerance: 3.653e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 4.359e+04, tolerance: 3.471e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 1.500e+04, tolerance: 3.653e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 4.740e+04, tolerance: 3.653e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 1.334e+04, tolerance: 3.471e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 3.297e+04, tolerance: 3.661e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 7.165e+03, tolerance: 3.661e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 6.527e+04, tolerance: 3.661e+02 Linear regression models with null weight for the l1 regularization term are more efficiently fitted using one of the solvers implemented in sklearn.linear_model.Ridge/RidgeCV instead.
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 6.572e+04, tolerance: 3.653e+02 Linear regression models with null weight for the l1 regularization term are more efficiently fitted using one of the solvers implemented in sklearn.linear_model.Ridge/RidgeCV instead.
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 4.440e+04, tolerance: 3.620e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 1.662e+04, tolerance: 3.620e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 4.348e+04, tolerance: 3.471e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 1.139e+04, tolerance: 4.969e+01 Linear regression models with null weight for the l1 regularization term are more efficiently fitted using one of the solvers implemented in sklearn.linear_model.Ridge/RidgeCV instead.
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 6.371e+04, tolerance: 3.471e+02 Linear regression models with null weight for the l1 regularization term are more efficiently fitted using one of the solvers implemented in sklearn.linear_model.Ridge/RidgeCV instead.
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 6.537e+04, tolerance: 3.620e+02 Linear regression models with null weight for the l1 regularization term are more efficiently fitted using one of the solvers implemented in sklearn.linear_model.Ridge/RidgeCV instead.
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 1.248e+04, tolerance: 3.661e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 2.172e+04, tolerance: 3.653e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 5.539e+04, tolerance: 3.471e+02 Linear regression models with null weight for the l1 regularization term are more efficiently fitted using one of the solvers implemented in sklearn.linear_model.Ridge/RidgeCV instead.
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 5.719e+04, tolerance: 3.653e+02 Linear regression models with null weight for the l1 regularization term are more efficiently fitted using one of the solvers implemented in sklearn.linear_model.Ridge/RidgeCV instead.
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 1.693e+04, tolerance: 3.653e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 2.212e+04, tolerance: 3.653e+02 Linear regression models with null weight for the l1 regularization term are more efficiently fitted using one of the solvers implemented in sklearn.linear_model.Ridge/RidgeCV instead.
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 2.794e+04, tolerance: 3.471e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 5.690e+04, tolerance: 3.661e+02 Linear regression models with null weight for the l1 regularization term are more efficiently fitted using one of the solvers implemented in sklearn.linear_model.Ridge/RidgeCV instead.
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 2.199e+04, tolerance: 3.620e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 1.377e+04, tolerance: 3.471e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 3.240e+04, tolerance: 3.653e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 2.085e+04, tolerance: 3.471e+02 Linear regression models with null weight for the l1 regularization term are more efficiently fitted using one of the solvers implemented in sklearn.linear_model.Ridge/RidgeCV instead.
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 5.243e+04, tolerance: 3.471e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 6.275e+04, tolerance: 3.620e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/base.py:1151: UserWarning: With alpha=0, this algorithm does not converge well. You are advised to use the LinearRegression estimator
+  return fit_method(estimator, *args, **kwargs)
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 9.846e+03, tolerance: 4.969e+01 Linear regression models with null weight for the l1 regularization term are more efficiently fitted using one of the solvers implemented in sklearn.linear_model.Ridge/RidgeCV instead.
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 5.695e+04, tolerance: 3.620e+02 Linear regression models with null weight for the l1 regularization term are more efficiently fitted using one of the solvers implemented in sklearn.linear_model.Ridge/RidgeCV instead.
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: UserWarning: Coordinate descent with no regularization may lead to unexpected results and is discouraged.
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 5.598e+04, tolerance: 3.661e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/base.py:1151: UserWarning: With alpha=0, this algorithm does not converge well. You are advised to use the LinearRegression estimator
+  return fit_method(estimator, *args, **kwargs)
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/base.py:1151: UserWarning: With alpha=0, this algorithm does not converge well. You are advised to use the LinearRegression estimator
+  return fit_method(estimator, *args, **kwargs)
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/base.py:1151: UserWarning: With alpha=0, this algorithm does not converge well. You are advised to use the LinearRegression estimator
+  return fit_method(estimator, *args, **kwargs)
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 6.198e+04, tolerance: 3.653e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: UserWarning: Coordinate descent with no regularization may lead to unexpected results and is discouraged.
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/base.py:1151: UserWarning: With alpha=0, this algorithm does not converge well. You are advised to use the LinearRegression estimator
+  return fit_method(estimator, *args, **kwargs)
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: UserWarning: Coordinate descent with no regularization may lead to unexpected results and is discouraged.
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: UserWarning: Coordinate descent with no regularization may lead to unexpected results and is discouraged.
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: UserWarning: Coordinate descent with no regularization may lead to unexpected results and is discouraged.
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 1.922e+04, tolerance: 3.620e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 5.116e+03, tolerance: 4.969e+01
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 3.114e+04, tolerance: 3.661e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 3.287e+04, tolerance: 3.620e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 5.819e+03, tolerance: 3.661e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 3.576e+03, tolerance: 4.969e+01 Linear regression models with null weight for the l1 regularization term are more efficiently fitted using one of the solvers implemented in sklearn.linear_model.Ridge/RidgeCV instead.
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/base.py:1151: UserWarning: With alpha=0, this algorithm does not converge well. You are advised to use the LinearRegression estimator
+  return fit_method(estimator, *args, **kwargs)
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: UserWarning: Coordinate descent with no regularization may lead to unexpected results and is discouraged.
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 5.041e+04, tolerance: 3.471e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/base.py:1151: UserWarning: With alpha=0, this algorithm does not converge well. You are advised to use the LinearRegression estimator
+  return fit_method(estimator, *args, **kwargs)
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 2.201e+04, tolerance: 3.620e+02 Linear regression models with null weight for the l1 regularization term are more efficiently fitted using one of the solvers implemented in sklearn.linear_model.Ridge/RidgeCV instead.
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/base.py:1151: UserWarning: With alpha=0, this algorithm does not converge well. You are advised to use the LinearRegression estimator
+  return fit_method(estimator, *args, **kwargs)
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: UserWarning: Coordinate descent with no regularization may lead to unexpected results and is discouraged.
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/base.py:1151: UserWarning: With alpha=0, this algorithm does not converge well. You are advised to use the LinearRegression estimator
+  return fit_method(estimator, *args, **kwargs)
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: UserWarning: Coordinate descent with no regularization may lead to unexpected results and is discouraged.
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 2.073e+04, tolerance: 3.661e+02 Linear regression models with null weight for the l1 regularization term are more efficiently fitted using one of the solvers implemented in sklearn.linear_model.Ridge/RidgeCV instead.
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: UserWarning: Coordinate descent with no regularization may lead to unexpected results and is discouraged.
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/base.py:1151: UserWarning: With alpha=0, this algorithm does not converge well. You are advised to use the LinearRegression estimator
+  return fit_method(estimator, *args, **kwargs)
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: UserWarning: Coordinate descent with no regularization may lead to unexpected results and is discouraged.
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 2.274e+02, tolerance: 4.969e+01
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 4.365e+04, tolerance: 3.653e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 3.827e+04, tolerance: 3.471e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 3.212e+04, tolerance: 3.661e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 3.539e+04, tolerance: 3.653e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 4.889e+02, tolerance: 4.969e+01
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 5.483e+04, tolerance: 3.661e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 4.356e+04, tolerance: 3.620e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 3.734e+02, tolerance: 4.969e+01
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 3.939e+04, tolerance: 3.620e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 4.254e+04, tolerance: 3.471e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 5.101e+04, tolerance: 3.653e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 2.674e+03, tolerance: 3.653e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 1.445e+03, tolerance: 3.471e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 2.099e+03, tolerance: 3.620e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/base.py:1151: UserWarning: With alpha=0, this algorithm does not converge well. You are advised to use the LinearRegression estimator
+  return fit_method(estimator, *args, **kwargs)
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 1.148e+03, tolerance: 3.661e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/base.py:1151: UserWarning: With alpha=0, this algorithm does not converge well. You are advised to use the LinearRegression estimator
+  return fit_method(estimator, *args, **kwargs)
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: UserWarning: Coordinate descent with no regularization may lead to unexpected results and is discouraged.
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: UserWarning: Coordinate descent with no regularization may lead to unexpected results and is discouraged.
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 4.012e+03, tolerance: 4.969e+01
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/base.py:1151: UserWarning: With alpha=0, this algorithm does not converge well. You are advised to use the LinearRegression estimator
+  return fit_method(estimator, *args, **kwargs)
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 6.796e+04, tolerance: 3.661e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/base.py:1151: UserWarning: With alpha=0, this algorithm does not converge well. You are advised to use the LinearRegression estimator
+  return fit_method(estimator, *args, **kwargs)
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: UserWarning: Coordinate descent with no regularization may lead to unexpected results and is discouraged.
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 4.828e+04, tolerance: 3.471e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/base.py:1151: UserWarning: With alpha=0, this algorithm does not converge well. You are advised to use the LinearRegression estimator
+  return fit_method(estimator, *args, **kwargs)
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: UserWarning: Coordinate descent with no regularization may lead to unexpected results and is discouraged.
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: UserWarning: Coordinate descent with no regularization may lead to unexpected results and is discouraged.
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 4.864e+04, tolerance: 3.620e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 2.073e+04, tolerance: 3.661e+02 Linear regression models with null weight for the l1 regularization term are more efficiently fitted using one of the solvers implemented in sklearn.linear_model.Ridge/RidgeCV instead.
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 2.085e+04, tolerance: 3.471e+02 Linear regression models with null weight for the l1 regularization term are more efficiently fitted using one of the solvers implemented in sklearn.linear_model.Ridge/RidgeCV instead.
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 2.201e+04, tolerance: 3.620e+02 Linear regression models with null weight for the l1 regularization term are more efficiently fitted using one of the solvers implemented in sklearn.linear_model.Ridge/RidgeCV instead.
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 3.576e+03, tolerance: 4.969e+01 Linear regression models with null weight for the l1 regularization term are more efficiently fitted using one of the solvers implemented in sklearn.linear_model.Ridge/RidgeCV instead.
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 2.212e+04, tolerance: 3.653e+02 Linear regression models with null weight for the l1 regularization term are more efficiently fitted using one of the solvers implemented in sklearn.linear_model.Ridge/RidgeCV instead.
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 2.073e+04, tolerance: 3.661e+02 Linear regression models with null weight for the l1 regularization term are more efficiently fitted using one of the solvers implemented in sklearn.linear_model.Ridge/RidgeCV instead.
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 2.881e+04, tolerance: 3.471e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 3.832e+04, tolerance: 3.653e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 2.212e+04, tolerance: 3.653e+02 Linear regression models with null weight for the l1 regularization term are more efficiently fitted using one of the solvers implemented in sklearn.linear_model.Ridge/RidgeCV instead.
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 4.643e+02, tolerance: 3.653e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 2.085e+04, tolerance: 3.471e+02 Linear regression models with null weight for the l1 regularization term are more efficiently fitted using one of the solvers implemented in sklearn.linear_model.Ridge/RidgeCV instead.
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 7.283e+02, tolerance: 3.620e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/base.py:1151: UserWarning: With alpha=0, this algorithm does not converge well. You are advised to use the LinearRegression estimator
+  return fit_method(estimator, *args, **kwargs)
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: UserWarning: Coordinate descent with no regularization may lead to unexpected results and is discouraged.
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 3.301e+04, tolerance: 3.620e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/base.py:1151: UserWarning: With alpha=0, this algorithm does not converge well. You are advised to use the LinearRegression estimator
+  return fit_method(estimator, *args, **kwargs)
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: UserWarning: Coordinate descent with no regularization may lead to unexpected results and is discouraged.
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/base.py:1151: UserWarning: With alpha=0, this algorithm does not converge well. You are advised to use the LinearRegression estimator
+  return fit_method(estimator, *args, **kwargs)
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 2.201e+04, tolerance: 3.620e+02 Linear regression models with null weight for the l1 regularization term are more efficiently fitted using one of the solvers implemented in sklearn.linear_model.Ridge/RidgeCV instead.
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: UserWarning: Coordinate descent with no regularization may lead to unexpected results and is discouraged.
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/base.py:1151: UserWarning: With alpha=0, this algorithm does not converge well. You are advised to use the LinearRegression estimator
+  return fit_method(estimator, *args, **kwargs)
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 6.795e+04, tolerance: 3.653e+02 Linear regression models with null weight for the l1 regularization term are more efficiently fitted using one of the solvers implemented in sklearn.linear_model.Ridge/RidgeCV instead.
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/base.py:1151: UserWarning: With alpha=0, this algorithm does not converge well. You are advised to use the LinearRegression estimator
+  return fit_method(estimator, *args, **kwargs)
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: UserWarning: Coordinate descent with no regularization may lead to unexpected results and is discouraged.
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 2.349e+04, tolerance: 3.661e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: UserWarning: Coordinate descent with no regularization may lead to unexpected results and is discouraged.
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 3.576e+03, tolerance: 4.969e+01 Linear regression models with null weight for the l1 regularization term are more efficiently fitted using one of the solvers implemented in sklearn.linear_model.Ridge/RidgeCV instead.
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 6.744e+04, tolerance: 3.661e+02 Linear regression models with null weight for the l1 regularization term are more efficiently fitted using one of the solvers implemented in sklearn.linear_model.Ridge/RidgeCV instead.
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 6.756e+04, tolerance: 3.620e+02 Linear regression models with null weight for the l1 regularization term are more efficiently fitted using one of the solvers implemented in sklearn.linear_model.Ridge/RidgeCV instead.
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 2.647e+04, tolerance: 3.653e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 6.588e+04, tolerance: 3.471e+02 Linear regression models with null weight for the l1 regularization term are more efficiently fitted using one of the solvers implemented in sklearn.linear_model.Ridge/RidgeCV instead.
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 2.053e+04, tolerance: 3.471e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 1.180e+04, tolerance: 4.969e+01 Linear regression models with null weight for the l1 regularization term are more efficiently fitted using one of the solvers implemented in sklearn.linear_model.Ridge/RidgeCV instead.
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 1.980e+04, tolerance: 3.661e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 4.442e+04, tolerance: 3.661e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 2.073e+04, tolerance: 3.661e+02 Linear regression models with null weight for the l1 regularization term are more efficiently fitted using one of the solvers implemented in sklearn.linear_model.Ridge/RidgeCV instead.
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 2.212e+04, tolerance: 3.653e+02 Linear regression models with null weight for the l1 regularization term are more efficiently fitted using one of the solvers implemented in sklearn.linear_model.Ridge/RidgeCV instead.
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 4.620e+04, tolerance: 3.471e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 2.962e+04, tolerance: 3.620e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 4.814e+04, tolerance: 3.661e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 3.576e+03, tolerance: 4.969e+01 Linear regression models with null weight for the l1 regularization term are more efficiently fitted using one of the solvers implemented in sklearn.linear_model.Ridge/RidgeCV instead.
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 3.770e+04, tolerance: 3.653e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 2.085e+04, tolerance: 3.471e+02 Linear regression models with null weight for the l1 regularization term are more efficiently fitted using one of the solvers implemented in sklearn.linear_model.Ridge/RidgeCV instead.
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 3.142e+04, tolerance: 3.471e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 3.822e+04, tolerance: 3.620e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 1.874e+03, tolerance: 4.969e+01
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 4.865e+04, tolerance: 3.653e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 2.201e+04, tolerance: 3.620e+02 Linear regression models with null weight for the l1 regularization term are more efficiently fitted using one of the solvers implemented in sklearn.linear_model.Ridge/RidgeCV instead.
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 1.166e+02, tolerance: 4.969e+01
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 4.666e+04, tolerance: 3.620e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 4.568e+04, tolerance: 3.661e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 5.472e+04, tolerance: 3.471e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 2.056e+03, tolerance: 4.969e+01
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 4.024e+04, tolerance: 3.653e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 2.420e+04, tolerance: 3.471e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 6.697e+04, tolerance: 3.653e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 5.758e+04, tolerance: 3.620e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 2.667e+04, tolerance: 3.661e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 4.319e+04, tolerance: 3.620e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 2.212e+04, tolerance: 3.653e+02 Linear regression models with null weight for the l1 regularization term are more efficiently fitted using one of the solvers implemented in sklearn.linear_model.Ridge/RidgeCV instead.
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 1.066e+03, tolerance: 3.620e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 6.833e+02, tolerance: 3.653e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 6.135e+04, tolerance: 3.471e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 2.201e+04, tolerance: 3.620e+02 Linear regression models with null weight for the l1 regularization term are more efficiently fitted using one of the solvers implemented in sklearn.linear_model.Ridge/RidgeCV instead.
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 3.576e+03, tolerance: 4.969e+01 Linear regression models with null weight for the l1 regularization term are more efficiently fitted using one of the solvers implemented in sklearn.linear_model.Ridge/RidgeCV instead.
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 2.085e+04, tolerance: 3.471e+02 Linear regression models with null weight for the l1 regularization term are more efficiently fitted using one of the solvers implemented in sklearn.linear_model.Ridge/RidgeCV instead.
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 6.935e+04, tolerance: 3.653e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 4.084e+04, tolerance: 3.620e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 2.073e+04, tolerance: 3.661e+02 Linear regression models with null weight for the l1 regularization term are more efficiently fitted using one of the solvers implemented in sklearn.linear_model.Ridge/RidgeCV instead.
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 6.809e+04, tolerance: 3.661e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 4.855e+03, tolerance: 4.969e+01
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 4.574e+04, tolerance: 3.653e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 7.004e+04, tolerance: 3.620e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 4.188e+04, tolerance: 3.471e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 5.149e+04, tolerance: 3.653e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 3.850e+04, tolerance: 3.661e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 2.080e+03, tolerance: 4.969e+01
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 3.937e+04, tolerance: 3.471e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 4.026e+04, tolerance: 3.620e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 4.381e+04, tolerance: 3.471e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 5.436e+04, tolerance: 3.661e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 5.334e+04, tolerance: 3.653e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 5.448e+04, tolerance: 3.620e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 2.768e+04, tolerance: 3.661e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 5.379e+04, tolerance: 3.653e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 4.490e+04, tolerance: 3.471e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 6.567e+04, tolerance: 3.661e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 1.877e+04, tolerance: 3.653e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 2.639e+04, tolerance: 3.653e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 4.090e+03, tolerance: 4.969e+01
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 1.450e+04, tolerance: 3.471e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 1.273e+04, tolerance: 3.661e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 2.131e+04, tolerance: 3.620e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 1.994e+04, tolerance: 3.471e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 4.620e+04, tolerance: 3.620e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 1.991e+04, tolerance: 3.661e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 2.969e+04, tolerance: 3.620e+02
+  model = cd_fast.enet_coordinate_descent(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_coordinate_descent.py:628: ConvergenceWarning: Objective did not converge. You might want to increase the number of iterations, check the scale of the features or consider increasing regularisation. Duality gap: 6.035e+04, tolerance: 3.828e+02
+  model = cd_fast.enet_coordinate_descent(
