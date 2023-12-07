@@ -4,9 +4,14 @@ from sklearn.model_selection import train_test_split
 from geosketch import gs
 import pandas as pd
 
+# Function to binarize a data frame from Yu, Nov 30 2023 (CellBiAge)
+def binarize_data(df):
+    num_cols = list(df.select_dtypes(exclude=['O']).columns)
+    df.loc[:,num_cols] = (df.loc[:,num_cols] > 0.0).astype(int)
+    return df
 
 # Function to downsample data to a set number of cells based on the density of the data
-def density_split (adata, target_variable = 'numerical_age', split = 0.8):
+def density_split (adata, target_variable = 'numerical_age', split = 0.8, binarize=False):
     # Calculate number of cells that accounts for 80% of the dataset
     split = split
     num_cells = int(split*len(adata.obs))
@@ -37,6 +42,11 @@ def density_split (adata, target_variable = 'numerical_age', split = 0.8):
     X_test = test_adata.to_df()
     y_train = sc.get.obs_df(train_adata, keys=target_variable)
     y_test = sc.get.obs_df(test_adata, keys=target_variable)
+
+    if binarize==True:
+          X_train = binarize_data(X_train)
+          X_test = binarize_data(X_test)
+
     print(f"X_train shape is: {X_train.shape}")
     print(f"X_test shape is: {X_test.shape}")
     print(f"y_train shape is: {y_train.shape}")
@@ -49,7 +59,7 @@ def density_split (adata, target_variable = 'numerical_age', split = 0.8):
 
 # Function to randomly split anndata object into train and test subsets
 # 80% for training and 20% for testing
-def random_split(adata, split=0.8, target_variable='numerical_age'):
+def random_split(adata, split=0.8, target_variable='numerical_age', binarize=False):
     split = split
     train_barcodes = np.random.choice(adata.obs.index, replace = False, size= int(split * adata.shape[0]))
     test_barcodes = np.asarray([barcode for barcode in adata.obs.index if barcode not in set(train_barcodes)])
@@ -60,6 +70,11 @@ def random_split(adata, split=0.8, target_variable='numerical_age'):
     X_test = test_adata.to_df()
     y_train = sc.get.obs_df(train_adata, keys=target_variable)
     y_test = sc.get.obs_df(test_adata, keys=target_variable)
+
+    if binarize==True:
+          X_train = binarize_data(X_train)
+          X_test = binarize_data(X_test)
+
     print(f"X_train shape is: {X_train.shape}")
     print(f"X_test shape is: {X_test.shape}")
     print(f"y_train shape is: {y_train.shape}")
@@ -72,7 +87,7 @@ def random_split(adata, split=0.8, target_variable='numerical_age'):
 # Function to split anndata object into train and test
 # 80% of cells from each sample (adata.obs['batch']) will be allocated for training
 # 20% of cells from each sample will be allocated for testing
-def batch_split (adata, target_variable ='numerical_age', split = 0.8):
+def batch_split (adata, target_variable ='numerical_age', split = 0.8, binarize=False):
     # Identiies the unique batches or samples in adata
     unique_batches = adata.obs['batch'].unique()
     # Calculate the number of cells to be included from each batch for 80% training
@@ -109,6 +124,11 @@ def batch_split (adata, target_variable ='numerical_age', split = 0.8):
     X_test = test_adata.to_df()
     y_train = sc.get.obs_df(train_adata, keys=target_variable)
     y_test = sc.get.obs_df(test_adata, keys=target_variable)
+
+    if binarize==True:
+          X_train = binarize_data(X_train)
+          X_test = binarize_data(X_test)
+
     print(f"X_train shape is: {X_train.shape}")
     print(f"X_test shape is: {X_test.shape}")
     print(f"y_train shape is: {y_train.shape}")
@@ -120,7 +140,7 @@ def batch_split (adata, target_variable ='numerical_age', split = 0.8):
 
 # Function to split anndata into train and test data using geosketching
 # Need to start with an anndata object that has already had PCA run on it
-def geosplit (adata, split = 0.8, target_variable = 'numerical_age'):
+def geosplit (adata, split = 0.8, target_variable = 'numerical_age', binarize=False):
     split = split
     # Geosketching to get 80% of the dataset
     N = int(split*len(adata.obs))
@@ -140,6 +160,11 @@ def geosplit (adata, split = 0.8, target_variable = 'numerical_age'):
     X_test = test_adata.to_df()
     y_train = sc.get.obs_df(train_adata, keys=target_variable)
     y_test = sc.get.obs_df(test_adata, keys=target_variable)
+
+    if binarize==True:
+          X_train = binarize_data(X_train)
+          X_test = binarize_data(X_test)
+
     print(f"X_train shape is: {X_train.shape}")
     print(f"X_test shape is: {X_test.shape}")
     print(f"y_train shape is: {y_train.shape}")
