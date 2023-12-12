@@ -171,6 +171,18 @@ def geosplit (adata, split = 0.8, target_variable = 'numerical_age', binarize=Fa
     print(f"y_test shape is: {y_test.shape}")
     return X_train, X_test, y_train, y_test
 
+###################################################################################
+###################################################################################
 
-
+# Function to split complete anndata in to X and y. To used when training a model
+# on complete datasets, and evaluting with an external dataset.
+def xy_split (adata, target_variable='stage_id', binarize=True):
+      if binarize==True:
+            X = binarize_data(adata.to_df())
+      else: X = adata.to_df()
+      y = sc.get.obs_df(adata, keys=target_variable)
+      
+      print(f"X shape is: {X.shape}")
+      print(f"y shape is: {y.shape}")
+      return X, y
 
