@@ -1,0 +1,203 @@
+
+# Start of job
+echo $SLURM_JOB_NAME job started at  `date`
+model_training job started at Fri Dec 15 09:13:20 AWST 2023
+
+# To compile with the GNU toolchain
+module load Anaconda3/2020.11
+MANPATH=/uwahpc/centos8/python/anaconda3/share/man:::/opt/puppetlabs/puppet/share/man; export MANPATH;
+LOADEDMODULES=Anaconda3/2020.11; export LOADEDMODULES;
+_LMFILES_=/uwahpc/centos8/modulefiles/python/Anaconda3/2020.11; export _LMFILES_;
+MANPATH_modshare=:1:/uwahpc/centos8/python/anaconda3/share/man:1:/opt/puppetlabs/puppet/share/man:1; export MANPATH_modshare;
+MODULES_LMALTNAME=Anaconda3/2020.11\&Anaconda3/default\&Anaconda3; export MODULES_LMALTNAME;
+MODULES_LMALTNAME_modshare=Anaconda3/2020.11\&Anaconda3/default\&Anaconda3:1; export MODULES_LMALTNAME_modshare;
+CONDA_EXE=/uwahpc/centos8/python/anaconda3/bin/conda; export CONDA_EXE;
+CONDA_PYTHON_EXE=/uwahpc/centos8/python/anaconda3/bin/python; export CONDA_PYTHON_EXE;
+LOADEDMODULES_modshare=Anaconda3/2020.11:1; export LOADEDMODULES_modshare;
+_LMFILES__modshare=/uwahpc/centos8/modulefiles/python/Anaconda3/2020.11:1; export _LMFILES__modshare;
+PATH=/group/ll005/apps/cellranger-7.1.0:/group/ll005/apps/cellranger-7.1.0:/uwahpc/centos8/python/anaconda3/bin:/uwahpc/centos8/python/anaconda3/condabin:/usr/share/Modules/bin:/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/opt/puppetlabs/bin:/group/ll005/lditchburn/bin:/group/llshared/scripts/sequencing:/group/ll005/lditchburn/bin/:/group/llshared/scripts/sequencing/; export PATH;
+PATH_modshare=/usr/bin:1:/uwahpc/centos8/python/anaconda3/bin:2:/usr/share/Modules/bin:1:/usr/local/bin:1:/group/ll005/lditchburn/bin/:1:/group/ll005/lditchburn/bin:1:/group/llshared/scripts/sequencing/:1:/opt/puppetlabs/bin:1:/group/ll005/apps/cellranger-7.1.0:1:/group/llshared/scripts/sequencing:1:/usr/sbin:1:/usr/local/sbin:1:/uwahpc/centos8/python/anaconda3/condabin:1; export PATH_modshare;
+test 0;
+conda activate /group/ll005/envs/scrna
+PS1='(scrna) ${debian_chroot:+($debian_chroot)}\u@\h:\w\$ '
+export PATH='/group/ll005/apps/cellranger-7.1.0:/group/ll005/apps/cellranger-7.1.0:/group/ll005/envs/scrna/bin:/uwahpc/centos8/python/anaconda3/condabin:/usr/share/Modules/bin:/usr/local/bin:/usr/bin:/usr/local/sbin:/usr/sbin:/opt/puppetlabs/bin:/group/ll005/lditchburn/bin:/group/llshared/scripts/sequencing:/group/ll005/lditchburn/bin:/group/llshared/scripts/sequencing'
+export CONDA_PREFIX='/group/ll005/envs/scrna'
+export CONDA_SHLVL='2'
+export CONDA_DEFAULT_ENV='scrna'
+export CONDA_PROMPT_MODIFIER='(scrna) '
+export CONDA_EXE='/uwahpc/centos8/python/anaconda3/bin/conda'
+export _CE_M=''
+export _CE_CONDA=''
+export CONDA_PYTHON_EXE='/uwahpc/centos8/python/anaconda3/bin/python'
+export CONDA_PREFIX_1='/uwahpc/centos8/python/anaconda3'
+. "/group/ll005/envs/scrna/etc/conda/activate.d/libglib_activate.sh"
+export GSETTINGS_SCHEMA_DIR_CONDA_BACKUP="${GSETTINGS_SCHEMA_DIR:-}"
+export GSETTINGS_SCHEMA_DIR="$CONDA_PREFIX/share/glib-2.0/schemas"
+. "/group/ll005/envs/scrna/etc/conda/activate.d/libxml2_activate.sh"
+#! /bin/sh
+
+if test -n "${XML_CATALOG_FILES:-}"; then
+    xml_catalog_files_libxml2="${XML_CATALOG_FILES}"
+    XML_CATALOG_FILES="${XML_CATALOG_FILES} "
+else
+    xml_catalog_files_libxml2=""
+    XML_CATALOG_FILES=""
+fi
+
+
+# Replace space with '%20'; equivalent to
+# conda_catalog_files=${CONDA_PREFIX// /%20}, except trailing space is
+# ignored.
+conda_catalog_files=""
+ifs_libxml2="${IFS}"
+IFS=" "
+rem="${CONDA_PREFIX}"
+for pre in ${rem}; do
+    while test "${rem#"${pre}"}" = "${rem}"; do
+	conda_catalog_files="${conda_catalog_files}%20"
+	rem=${rem#" "}
+    done
+    conda_catalog_files="${conda_catalog_files}${pre}"
+    rem=${rem#"${pre}"}
+done
+IFS="${ifs_libxml2}"
+
+conda_catalog_files="file://${conda_catalog_files}/etc/xml/catalog file:///etc/xml/catalog"
+export XML_CATALOG_FILES="${XML_CATALOG_FILES}${conda_catalog_files}"
+unset conda_catalog_files ifs_libxml2 rem
+
+#  Note: SLURM_JOBID is a unique number for every job.
+#  These are generic variables
+JOBNAME=${SLURM_JOB_NAME}
+
+if [ -z "$1" ]
+then
+      echo -ne "
+      ################\n
+      First argument is empty. Please provide path to python script.\n
+      ################\n"
+      exit 1
+else
+      PYTHON_SCRIPT=$1
+
+
+      echo -ne "\nPath to  path to python script is\n\t${PYTHON_SCRIPT}\n"
+fi
+
+Path to  path to python script is
+	2023-12-12_logisticRegression_ELN_classifier_hyperparameter_tuning.py
+
+python $PYTHON_SCRIPT
+X shape is: (44370, 2254)
+y shape is: (44370,)
+X shape is: (13001, 2254)
+y shape is: (13001,)
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_sag.py:350: ConvergenceWarning: The max_iter was reached which means the coef_ did not converge
+  warnings.warn(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_sag.py:350: ConvergenceWarning: The max_iter was reached which means the coef_ did not converge
+  warnings.warn(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_sag.py:350: ConvergenceWarning: The max_iter was reached which means the coef_ did not converge
+  warnings.warn(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_sag.py:350: ConvergenceWarning: The max_iter was reached which means the coef_ did not converge
+  warnings.warn(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_sag.py:350: ConvergenceWarning: The max_iter was reached which means the coef_ did not converge
+  warnings.warn(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_sag.py:350: ConvergenceWarning: The max_iter was reached which means the coef_ did not converge
+  warnings.warn(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_sag.py:350: ConvergenceWarning: The max_iter was reached which means the coef_ did not converge
+  warnings.warn(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_sag.py:350: ConvergenceWarning: The max_iter was reached which means the coef_ did not converge
+  warnings.warn(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_sag.py:350: ConvergenceWarning: The max_iter was reached which means the coef_ did not converge
+  warnings.warn(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_sag.py:350: ConvergenceWarning: The max_iter was reached which means the coef_ did not converge
+  warnings.warn(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_sag.py:350: ConvergenceWarning: The max_iter was reached which means the coef_ did not converge
+  warnings.warn(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_sag.py:350: ConvergenceWarning: The max_iter was reached which means the coef_ did not converge
+  warnings.warn(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_sag.py:350: ConvergenceWarning: The max_iter was reached which means the coef_ did not converge
+  warnings.warn(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_sag.py:350: ConvergenceWarning: The max_iter was reached which means the coef_ did not converge
+  warnings.warn(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_sag.py:350: ConvergenceWarning: The max_iter was reached which means the coef_ did not converge
+  warnings.warn(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_sag.py:350: ConvergenceWarning: The max_iter was reached which means the coef_ did not converge
+  warnings.warn(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_sag.py:350: ConvergenceWarning: The max_iter was reached which means the coef_ did not converge
+  warnings.warn(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_sag.py:350: ConvergenceWarning: The max_iter was reached which means the coef_ did not converge
+  warnings.warn(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_sag.py:350: ConvergenceWarning: The max_iter was reached which means the coef_ did not converge
+  warnings.warn(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_sag.py:350: ConvergenceWarning: The max_iter was reached which means the coef_ did not converge
+  warnings.warn(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_sag.py:350: ConvergenceWarning: The max_iter was reached which means the coef_ did not converge
+  warnings.warn(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_sag.py:350: ConvergenceWarning: The max_iter was reached which means the coef_ did not converge
+  warnings.warn(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_sag.py:350: ConvergenceWarning: The max_iter was reached which means the coef_ did not converge
+  warnings.warn(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_sag.py:350: ConvergenceWarning: The max_iter was reached which means the coef_ did not converge
+  warnings.warn(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_sag.py:350: ConvergenceWarning: The max_iter was reached which means the coef_ did not converge
+  warnings.warn(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_sag.py:350: ConvergenceWarning: The max_iter was reached which means the coef_ did not converge
+  warnings.warn(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_sag.py:350: ConvergenceWarning: The max_iter was reached which means the coef_ did not converge
+  warnings.warn(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_sag.py:350: ConvergenceWarning: The max_iter was reached which means the coef_ did not converge
+  warnings.warn(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_sag.py:350: ConvergenceWarning: The max_iter was reached which means the coef_ did not converge
+  warnings.warn(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_sag.py:350: ConvergenceWarning: The max_iter was reached which means the coef_ did not converge
+  warnings.warn(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_sag.py:350: ConvergenceWarning: The max_iter was reached which means the coef_ did not converge
+  warnings.warn(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_sag.py:350: ConvergenceWarning: The max_iter was reached which means the coef_ did not converge
+  warnings.warn(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_sag.py:350: ConvergenceWarning: The max_iter was reached which means the coef_ did not converge
+  warnings.warn(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_sag.py:350: ConvergenceWarning: The max_iter was reached which means the coef_ did not converge
+  warnings.warn(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_sag.py:350: ConvergenceWarning: The max_iter was reached which means the coef_ did not converge
+  warnings.warn(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_sag.py:350: ConvergenceWarning: The max_iter was reached which means the coef_ did not converge
+  warnings.warn(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_sag.py:350: ConvergenceWarning: The max_iter was reached which means the coef_ did not converge
+  warnings.warn(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_sag.py:350: ConvergenceWarning: The max_iter was reached which means the coef_ did not converge
+  warnings.warn(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/linear_model/_sag.py:350: ConvergenceWarning: The max_iter was reached which means the coef_ did not converge
+  warnings.warn(
+/group/ll005/envs/scrna/lib/python3.11/site-packages/sklearn/metrics/_classification.py:2394: UserWarning: y_pred contains classes not in y_true
+  warnings.warn("y_pred contains classes not in y_true")
+{'max_iter': 176, 'l1_ratio': 0.5, 'C': 0.54}
+0.9760828679488347
+C -> 0.54
+class_weight -> None
+dual -> False
+fit_intercept -> True
+intercept_scaling -> 1
+l1_ratio -> 0.5
+max_iter -> 176
+multi_class -> multinomial
+n_jobs -> -1
+penalty -> elasticnet
+random_state -> 123
+solver -> saga
+tol -> 0.0001
+verbose -> 0
+warm_start -> False
+Traceback (most recent call last):
+  File "/scratch/ll005/lditchburn/2023-12-12_logisticRegression_ELN_classifier_hyperparameter_tuning.py", line 82, in <module>
+    with rc_context({'figure.figsize':{5,5}}):
+  File "/group/ll005/envs/scrna/lib/python3.11/contextlib.py", line 137, in __enter__
+    return next(self.gen)
+           ^^^^^^^^^^^^^^
+  File "/group/ll005/envs/scrna/lib/python3.11/site-packages/matplotlib/__init__.py", line 1174, in rc_context
+    rcParams.update(rc)
+  File "<frozen _collections_abc>", line 949, in update
+  File "/group/ll005/envs/scrna/lib/python3.11/site-packages/matplotlib/__init__.py", line 722, in __setitem__
+    raise ValueError(f"Key {key}: {ve}") from None
+ValueError: Key figure.figsize: Expected str or other non-set iterable, but got {5}
