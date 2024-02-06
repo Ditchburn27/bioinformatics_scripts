@@ -1,0 +1,11 @@
+# Bar plot that plots replicate measurements as points on Bar
+# that represents the mean, an error bar is also plotted.
+# Data frame must be in long format, with a column that labels the 
+# conditions to group them, e.g. column 'condition' with (control, treated)
+# options.
+
+library(ggpubr)
+ ggbarplot(combined_data, x = 'conditon', y = 'value', add = c("mean_se", "jitter"), 
+ fill = "gene", palette = c('#33FF66', '#00CCFF', '#FF33FF'), position = position_dodge(0.8), 
+ add.params = list(shape = "gene"), title = 'RNAscope Fluorescent Quantification', 
+ ylab = 'DAPI normalised fluorescence intensity') 
