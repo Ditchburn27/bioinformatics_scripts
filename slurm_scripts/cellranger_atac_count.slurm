@@ -56,5 +56,5 @@ command="cellranger-atac count --reference=$REFERENCE"
 # Read each line from input.txt and output.txt simultaneously
 while IFS= read -r fastq_dir && IFS= read -r sample_id <&3; do
     # Run the command for each pair of directories and sample_ids
-    $command --id="$sample_id" --fastqs="fastqs/*/${fastq_dir}" 
+    $command --id=$sample_id --fastqs=fastqs/*/${fastq_dir}
 done < "$input_file" 3< "$sample_ids"
