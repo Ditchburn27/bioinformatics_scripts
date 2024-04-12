@@ -46,7 +46,8 @@ cd $SCRATCH
 # create a sample ID file
 ls fastqs/*/ > input_files.txt
 sed 's/.*\(RL[0-9]\{4\}\).*/\1/' input_files.txt > sample_ids.txt
-input_file="input_files.txt"
+ls -d $PWD/fastqs/*/* > fastq_files.txt
+fastq_file="fastq_files.txt"
 sample_ids="sample_ids.txt"
 
 ###############################################
@@ -56,5 +57,5 @@ command="cellranger-atac count --reference=$REFERENCE"
 # Read each line from input.txt and output.txt simultaneously
 while IFS= read -r fastq_dir && IFS= read -r sample_id <&3; do
     # Run the command for each pair of directories and sample_ids
-    $command --id=$sample_id --fastqs=fastqs/*/${fastq_dir}
-done < "$input_file" 3< "$sample_ids"
+    $command --id=$sample_id --fastqs=$fastq_dir
+done < "$fastq_file" 3< "$sample_ids"
