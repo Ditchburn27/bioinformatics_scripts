@@ -32,8 +32,4 @@ blacklist_file="$SHARED/reference/bowtie2_hg38/blacklist/hg38-blacklist.v2.bed"
 cd $input_dir
 
 # Run filtering
-for i in RL*
-do
-    bedtools intersect -v -abam $i/outs/possorted_bam.bam -b $blacklist_file > $i/outs/blacklist_filtered.bam 
-    samtools view -b -f 0x2 -q 30 $i/outs/blacklist_filtered.bam  > $i/outs/final_filtered.bam
-done
+ls RL* | parallel 'samtools view -b -f 0x2 -q 30 -h -L {} $blacklist_file {}/outs/possorted_bam.bam > {}/outs/filtered_possorted.bam'
