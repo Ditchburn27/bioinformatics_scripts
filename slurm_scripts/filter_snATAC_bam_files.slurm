@@ -32,5 +32,5 @@ blacklist_file="$SHARED/reference/bowtie2_hg38/blacklist/hg38-blacklist.v2.bed"
 cd $input_dir
 
 # Run filtering
-ls | parallel 'samtools view -b -f 0x2 -q 30 -h -L {} $blacklist_file {}/outs/possorted_bam.bam > 
-{}/outs/filtered_possorted.bam && samtools index {}/outs/filtered_possorted.bam'
+ls | parallel 'samtools view -b -f 0x2 -q 30 -h -L {} $blacklist_file \
+{}/outs/possorted_bam.bam > {}/outs/filtered_possorted.bam && samtools index {}/outs/filtered_possorted.bam'
