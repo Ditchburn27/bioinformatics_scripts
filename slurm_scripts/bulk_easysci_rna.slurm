@@ -91,57 +91,6 @@ else
       echo -ne "\nPath to  path to gtf_file is\n\t${gtf_file}\n"
 fi
 
-if [ -z "$6" ]
-then
-      echo -ne "
-      ################\n
-      Sixth argument is empty. Please provide gtf_file_exons.\n
-      ################\n"
-      exit 1
-else
-      gtf_file_exons=$6
-
-
-      echo -ne "\nPath to  path to gtf_file_exons is\n\t${gtf_file_exons}\n"
-fi
-
-if [ -z "$7" ]
-then
-      echo -ne "
-      ################\n
-      Seventh argument is empty. Please provide RT_barcode_matching_file.\n
-      ################\n"
-      exit 1
-else
-      RT_barcode_matching_file=$7
-
-
-      echo -ne "\nPath to  path to RT_barcode_matching_file is\n\t${RT_barcode_matching_file}\n"
-fi
-
-if [ -z "$8" ]
-then
-      echo -ne "
-      ################\n
-      Eighth argument is empty. Please provide number of cores.\n
-      ################\n"
-      exit 1
-else
-      cores=$8
-
-
-      echo -ne "\nNumber of cores is\n\t${cores}\n"
-fi
-
-## Barcode information files
-script_folder=$(dirname "$0")/script_folder/
-## define the location of the ligation barcodes
-ligation_barcode_file=$script_folder/barcode_files/ligation_barcodes.pickle2
-## define the location of the RT barcodes
-RT_barcode_file=$script_folder/barcode_files/RT_barcodes.pickle2
-## define the location of the randomN RT barcodes
-randomN_barcode_file=$script_folder/barcode_files/RT_randomN_barcodes.txt
-
 ## Change the name of the fastq files to standard format
 echo "Changing the name of the fastq files..."
 for sample in $(cat $sample_ID); do echo changing name $sample; mv $fastq_folder/*$sample*R1*.fastq.gz $fastq_folder/$sample.R1.fastq.gz; \
