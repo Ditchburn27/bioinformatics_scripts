@@ -180,17 +180,19 @@ os.makedirs(weblogo_path, exist_ok=True)
 R1_positive_ids = positive_libs['R1_library_ID'].to_list()
 R2_positive_ids = positive_libs['R2_library_ID'].to_list()
 
-R1_fastqs = []
+R1_fastqs_positive = []
 for fastq in R1_fastqs:
     UBL_number = file.split('_')[0]
     if UBL_number in R1_positive_ids:
-        R1_fastqs.append(fastq)
+        R1_fastqs_positive.append(fastq)
+R1_fastqs = R1_fastqs_positive
 
-R2_fastqs = []
+R2_fastqs_positive = []
 for fastq in R2_fastqs:
     UBL_number = file.split('_')[0]
     if UBL_number in R2_positive_ids:
-        R2_fastqs.append(fastq)
+        R2_fastqs_positive.append(fastq)
+R2_fastqs = R2_fastqs_positive
 ######################
 # Create results data frame
 consensus_df = pd.DataFrame(columns = ['R1_library_ID', 
@@ -206,13 +208,17 @@ for R1_fastq, R2_fastq in zip(R1_fastqs, R2_fastqs):
         R1_barcode_sequences = [Seq(barcode) for barcode in R1_barcode_list]
         R2_barcode_sequences = [Seq(barcode) for barcode in R2_barcode_list]
 
+        # Only keep barcode sequences with most common length
+        R1_barcode_sequences = common_sequence_length_filter(R1_barcode_sequences)
+        R2_barcode_sequences = common_sequence_length_filter(R2_barcode_sequences)
+
         # Make motif objects
         R1_motifs = motifs.create(R1_barcode_sequences)
         R2_motifs = motifs.create(R2_barcode_sequences)
 
         # Get consensus sequences
-        R1_consensus = print(R1_motifs.consensus)
-        R2_consensus = print(R2_motifs.consensus)
+        R1_consensus = str(R1_motifs.consensus)
+        R2_consensus = str(R2_motifs.consensus)
 
          # Get library IDs
         R1_id = R1_fastq.split('_')[0]
