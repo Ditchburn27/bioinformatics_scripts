@@ -56,12 +56,6 @@ if __name__ == '__main__':
     print('Selecting features...')
     snap.pp.select_features(adatas)
 
-    ################################################## 
-    # Remove doublets
-    print('Removing doublets...')
-    snap.pp.scrublet(adatas)
-    snap.pp.filter_doublets(adatas)
-
     ##################################################
     # Creat AnnDataSet object
     print('Creating AnnDataSet & Making barcodes unique...')
@@ -74,8 +68,15 @@ if __name__ == '__main__':
 
     ##################################################
     # Make AnnDataSet object into anndata
-    print('''Converting AnnDataSet object to Anndata
-          and saving...''')
+    print('Converting AnnDataSet object to Anndata')
     adata = adataset.to_adata()
+
+    ################################################## 
+    # Remove doublets
+    print('Removing doublets...')
+    snap.pp.scrublet(adata, n_jobs=16)
+    snap.pp.filter_doublets(adata, n_jobs=16)
+    ################################################## 
+    # Remove doublets
     adata.write(output_path)
     print(f'Anndata object saved here:{output_path}')
