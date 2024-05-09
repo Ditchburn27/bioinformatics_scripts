@@ -27,6 +27,7 @@ args = parser.parse_args()
 
 input_dir = args.input_dir
 output_name = args.output_name
+output_path = f'{input_dir}/{output_name}'
 
 ################################################## 
 # Read in anndata objects
@@ -68,5 +69,5 @@ adataset.obs_names = adataset.obs['sample'] + '+' + np.array(adataset.obs_names)
 print('''Converting AnnDataSet object to Anndata
       and saving...''')
 adata = adataset.to_adata()
-adata.write(input_dir+'/'+output_name)
-print(f'Anndata object saved here:{input_dir+'/'+output_name}')
+adata.write(output_path)
+print(f'Anndata object saved here:{output_path}')
