@@ -41,7 +41,8 @@ R2_right_flank = "CGTACGGCTTTAAGGCCGGTCCTAGCAA"
 ################################################################
 ## Identify barcodes, calculate average barcode length for each
 ## library and create an output dataframe of positive clones
-## that have barcode > 20 bp.
+## that have barcode > 45 bp. Expected random barcodes are
+## around 50 bp. 
 ############################
 # Define functions needed
 # Sequence pattern matching function that allows mismatches
@@ -134,9 +135,9 @@ for R1_fastq, R2_fastq in zip(R1_fastqs, R2_fastqs):
         positive_libs = pd.concat([positive_libs, results])
 
 ###########################################
-# Filter final results for barcodes > 20 bp
-positive_libs = positive_libs[positive_libs['R1_avg_barcode_length']>=21]
-positive_libs = positive_libs[positive_libs['R2_avg_barcode_length']>=21]
+# Filter final results for barcodes > 45 bp
+positive_libs = positive_libs[positive_libs['R1_avg_barcode_length']>=45]
+positive_libs = positive_libs[positive_libs['R2_avg_barcode_length']>=45]
 # Save final results as csv
 outfile_name = 'positive_UBL_barcode_libs.csv'
 outfile_save = input_dir+'/'+outfile_name
