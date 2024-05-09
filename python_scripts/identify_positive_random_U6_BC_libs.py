@@ -182,14 +182,14 @@ R2_positive_ids = positive_libs['R2_library_ID'].to_list()
 
 R1_fastqs_positive = []
 for fastq in R1_fastqs:
-    UBL_number = file.split('_')[0]
+    UBL_number = fastq.split('_')[0]
     if UBL_number in R1_positive_ids:
         R1_fastqs_positive.append(fastq)
 R1_fastqs = R1_fastqs_positive
 
 R2_fastqs_positive = []
 for fastq in R2_fastqs:
-    UBL_number = file.split('_')[0]
+    UBL_number = fastq.split('_')[0]
     if UBL_number in R2_positive_ids:
         R2_fastqs_positive.append(fastq)
 R2_fastqs = R2_fastqs_positive
