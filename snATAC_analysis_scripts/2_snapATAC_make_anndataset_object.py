@@ -45,6 +45,11 @@ if __name__ == '__main__':
     print('Reading anndata objects...')
     adata_files = [f'{input_dir}/{RL}' for RL in os.listdir(input_dir)]
     adatas = read_adatas(adata_files)
+        
+    ################################################## 
+    # Add cell-by-bin matrix
+    print('Adding cell-by-bin matrix...')
+    snap.pp.add_tile_matrix(adatas, bin_size=5000, n_jobs=16)
 
     ##################################################
     # Creat AnnDataSet object
@@ -60,11 +65,6 @@ if __name__ == '__main__':
     # Make AnnDataSet object into anndata
     print('Converting AnnDataSet object to Anndata')
     adata = adataset.to_adata()
-
-    ################################################## 
-    # Add cell-by-bin matrix
-    print('Adding cell-by-bin matrix...')
-    snap.pp.add_tile_matrix(adata, bin_size=5000, n_jobs=16)
 
     ################################################## 
     # Select features
