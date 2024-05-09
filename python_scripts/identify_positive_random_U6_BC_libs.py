@@ -2,6 +2,9 @@ import pandas as pd
 import os
 import argparse
 import gzip
+from Bio.Seq import Seq
+from Bio import motifs
+from collections import Counter
 
 ################################################################
 # CLI 
@@ -72,16 +75,11 @@ def calculate_avg_barcode_length(barcode_list):
     else:
         return 0
 ###########################
-# Create empty final results dataframe
-positive_libs = pd.DataFrame(columns = ['R1_library_ID', 
-                                     'R1_avg_barcode_length', 
-                                     'R2_library_ID', 
-                                     'R2_avg_barcode_length'])
-###########################
-## Loop to get results
-print('Extracting barcode sequences and calculating average barcode lengths...')
-# Read in files
-for R1_fastq, R2_fastq in zip(R1_fastqs, R2_fastqs):
+# Function for creating barcode lists
+def create_barcode_lists(R1_fastq, R2_fastq, R1_left_flank=R1_left_flank, 
+                         R1_right_flank=R1_right_flank, 
+                         R2_left_flank=R2_left_flank, 
+                         R2_right_flank=R2_right_flank, input_dir=input_dir):
     with gzip.open(input_dir+'/'+R1_fastq, 'rt') as R1, gzip.open(input_dir+'/'+R2_fastq, 'rt') as R2:
         # Read first line (Header)
         R1_1 = R1.readline()
@@ -118,6 +116,20 @@ for R1_fastq, R2_fastq in zip(R1_fastqs, R2_fastqs):
         # Filter lists for empty barcodes
         R1_barcode_list = list(filter(None, R1_barcode_list))
         R2_barcode_list = list(filter(None, R2_barcode_list))
+        # Return
+        return R1_barcode_list, R2_barcode_list
+# Create empty final results dataframe
+positive_libs = pd.DataFrame(columns = ['R1_library_ID', 
+                                     'R1_avg_barcode_length', 
+                                     'R2_library_ID', 
+                                     'R2_avg_barcode_length'])
+###########################
+## Loop to get results
+print('Extracting barcode sequences and calculating average barcode lengths...')
+# Read in files
+for R1_fastq, R2_fastq in zip(R1_fastqs, R2_fastqs):
+        R1_barcode_list, R2_barcode_list = create_barcode_lists(R1_fastq, R2_fastq)
+
         # Calculate average barcode lengths
         R1_avg_barcode_length = calculate_avg_barcode_length(R1_barcode_list)
         R2_avg_barcode_length = calculate_avg_barcode_length(R2_barcode_list)
@@ -145,5 +157,81 @@ positive_libs.to_csv(outfile_save)
 
 print(f'Results are saved here:{outfile_save}')
 
+################################################################
+## Get consensus barcode sequences for positive libraries.
+## And create weblogo images for each consensus.
+print('Determining Consensus sequences...')
+#####################
+## Function to only keep barcode sequences that have the most
+## commonly occuring sequence length.
+def common_sequence_length_filter(barcode_sequences):
+    sequence_lengths = [len(seq) for seq in barcode_sequences]
+    length_counts = Counter(sequence_lengths)
+    most_common_length = length_counts.most_common(1)[0][0]
+    filtered_sequences = [seq for seq in barcode_sequences if 
+                          len(seq) == most_common_length]
+    return filtered_sequences
+#####################
+# Create directory to store weblogo images
+weblogo_path = f'{input_dir}/weblogo_consensus'
+os.makedirs(weblogo_path, exist_ok=True)
+####################
+# Make new list of fastqs of positive libraries
+R1_positive_ids = positive_libs['R1_library_id'].to_list()
+R2_positive_ids = positive_libs['R2_library_id'].to_list()
 
+R1_fastqs = []
+for fastq in R1_fastqs:
+    UBL_number = file.split('_')[0]
+    if UBL_number in R1_positive_ids:
+        R1_fastqs.append(fastq)
 
+R2_fastqs = []
+for fastq in R2_fastqs:
+    UBL_number = file.split('_')[0]
+    if UBL_number in R2_positive_ids:
+        R2_fastqs.append(fastq)
+######################
+# Create results data frame
+consensus_df = pd.DataFrame(columns = ['R1_library_ID', 
+                                     'R1_consensus', 
+                                     'R2_library_ID', 
+                                     'R2_consensus'])
+######################
+# Loop to get consesus sequences
+for R1_fastq, R2_fastq in zip(R1_fastqs, R2_fastqs):
+        R1_barcode_list, R2_barcode_list = create_barcode_lists(R1_fastq, R2_fastq)
+
+        # Make sequences into Seq objects
+        R1_barcode_sequences = [Seq(barcode) for barcode in R1_barcode_list]
+        R2_barcode_sequences = [Seq(barcode) for barcode in R2_barcode_list]
+
+        # Make motif objects
+        R1_motifs = motifs.create(R1_barcode_sequences)
+        R2_motifs = motifs.create(R2_barcode_sequences)
+
+        # Get consensus sequences
+        R1_consensus = print(R1_motifs.consensus)
+        R2_consensus = print(R2_motifs.consensus)
+
+         # Get library IDs
+        R1_id = R1_fastq.split('_')[0]
+        R2_id = R2_fastq.split('_')[0]
+
+        # Save consensus results
+        results = pd.DataFrame([{'R1_library_ID':R1_id, 'R1_consensus':R1_consensus,
+                                 'R2_library_ID':R2_id, 'R2_consensus': R2_consensus}])
+        
+        # Concat results to final dataframe
+        consensus_df = pd.concat([consensus_df, results])
+
+        # Make weblogo images
+        R1_motifs.weblogo(f'{weblogo_path}/{R1_id}_R1_weblogo.png')
+        R2_motifs.weblogo(f'{weblogo_path}/{R2_id}_R1_weblogo.png')
+##################
+# Save final results as csv
+outfile_name = 'UBL_consensus_barcodes.csv'
+outfile_save = input_dir+'/'+outfile_name
+consensus_df.to_csv(outfile_save)
+
+print(f'Consensus results are saved here:{outfile_save}')
