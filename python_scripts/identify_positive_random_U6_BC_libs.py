@@ -136,6 +136,7 @@ for R1_fastq, R2_fastq in zip(R1_fastqs, R2_fastqs):
 ###########################################
 # Filter final results for barcodes > 20 bp
 positive_libs = positive_libs[positive_libs['R1_avg_barcode_length']>=21]
+positive_libs = positive_libs[positive_libs['R2_avg_barcode_length']>=21]
 # Save final results as csv
 outfile_name = 'positive_UBL_barcode_libs.csv'
 outfile_save = input_dir+'/'+outfile_name
