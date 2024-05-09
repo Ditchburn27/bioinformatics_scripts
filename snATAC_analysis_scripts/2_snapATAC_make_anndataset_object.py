@@ -31,43 +31,51 @@ output_path = f'{input_dir}/{output_name}'
 
 ################################################## 
 # Read in anndata objects
-print('Reading anndata objects...')
-adata_files = [f'{input_dir}/{RL}' for RL in os.listdir(input_dir)]
-adatas = []
-for file in adata_files:
-    adata = snap.read(file)
-    adatas.append(adata)
+def read_adata(file):
+    return snap.read(file)
 
-################################################## 
-# Add cell-by-bin matrix
-print('Adding cell-by-bin matrix...')
-snap.pp.add_tile_matrix(adatas, bin_size=5000)
+def read_adatas(adata_files):
+    adatas = []
+    for file in adata_files:
+        adata = read_adata(file)
+        adatas.append(adata)
+    return adatas
 
-################################################## 
-# Select features
-print('Selecting features...')
-snap.pp.select_features(adatas)
+if __name__ == '__main__':
+    print('Reading anndata objects...')
+    adata_files = [f'{input_dir}/{RL}' for RL in os.listdir(input_dir)]
+    adatas = read_adatas(adata_files)
 
-################################################## 
-# Remove doublets
-print('Removing doublets...')
-snap.pp.scrublet(adatas)
-snap.pp.filter_doublets(adatas)
+    ################################################## 
+    # Add cell-by-bin matrix
+    print('Adding cell-by-bin matrix...')
+    snap.pp.add_tile_matrix(adatas, bin_size=5000)
 
-##################################################
-# Creat AnnDataSet object
-print('Creating AnnDataSet & Making barcodes unique...')
-adataset = snap.AnnDataSet(
-    adatas=[RL.split('.h5ad')[0] for RL in adatas],
-    filename=f'{input_dir}/{output_name}'
-)
-# Make the obs_names unique by adding sample names to barcodes
-adataset.obs_names = adataset.obs['sample'] + '+' + np.array(adataset.obs_names)
+    ################################################## 
+    # Select features
+    print('Selecting features...')
+    snap.pp.select_features(adatas)
 
-##################################################
-# Make AnnDataSet object into anndata
-print('''Converting AnnDataSet object to Anndata
-      and saving...''')
-adata = adataset.to_adata()
-adata.write(output_path)
-print(f'Anndata object saved here:{output_path}')
+    ################################################## 
+    # Remove doublets
+    print('Removing doublets...')
+    snap.pp.scrublet(adatas)
+    snap.pp.filter_doublets(adatas)
+
+    ##################################################
+    # Creat AnnDataSet object
+    print('Creating AnnDataSet & Making barcodes unique...')
+    adataset = snap.AnnDataSet(
+        adatas=[RL.split('.h5ad')[0] for RL in adatas],
+        filename=f'{input_dir}/{output_name}'
+    )
+    # Make the obs_names unique by adding sample names to barcodes
+    adataset.obs_names = adataset.obs['sample'] + '+' + np.array(adataset.obs_names)
+
+    ##################################################
+    # Make AnnDataSet object into anndata
+    print('''Converting AnnDataSet object to Anndata
+          and saving...''')
+    adata = adataset.to_adata()
+    adata.write(output_path)
+    print(f'Anndata object saved here:{output_path}')
