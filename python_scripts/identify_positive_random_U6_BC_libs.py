@@ -233,7 +233,7 @@ for R1_fastq, R2_fastq in zip(R1_fastqs, R2_fastqs):
 
         # Make weblogo images
         R1_motifs.weblogo(f'{weblogo_path}/{R1_id}_R1_weblogo.png')
-        R2_motifs.weblogo(f'{weblogo_path}/{R2_id}_R1_weblogo.png')
+        R2_motifs.weblogo(f'{weblogo_path}/{R2_id}_R2_weblogo.png')
 ##################
 # Save final results as csv
 outfile_name = 'UBL_consensus_barcodes.csv'
