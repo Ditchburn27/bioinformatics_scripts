@@ -177,8 +177,8 @@ weblogo_path = f'{input_dir}/weblogo_consensus'
 os.makedirs(weblogo_path, exist_ok=True)
 ####################
 # Make new list of fastqs of positive libraries
-R1_positive_ids = positive_libs['R1_library_id'].to_list()
-R2_positive_ids = positive_libs['R2_library_id'].to_list()
+R1_positive_ids = positive_libs['R1_library_ID'].to_list()
+R2_positive_ids = positive_libs['R2_library_ID'].to_list()
 
 R1_fastqs = []
 for fastq in R1_fastqs:
