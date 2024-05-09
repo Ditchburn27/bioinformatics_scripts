@@ -60,7 +60,7 @@ if __name__ == '__main__':
     # Creat AnnDataSet object
     print('Creating AnnDataSet & Making barcodes unique...')
     adataset = snap.AnnDataSet(
-        adatas=[RL.split('.h5ad')[0] for RL in adatas],
+        adatas=[(f.filename.split('/')[-1].split('.h5ad')[0], f) for f in adatas],
         filename=f'{input_dir}/{output_name}'
     )
     # Make the obs_names unique by adding sample names to barcodes
