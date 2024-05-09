@@ -51,6 +51,17 @@ if __name__ == '__main__':
     print('Adding cell-by-bin matrix...')
     snap.pp.add_tile_matrix(adatas, bin_size=5000, n_jobs=16)
 
+    ################################################## 
+    # Select features
+    print('Selecting features...')
+    snap.pp.select_features(adatas, n_jobs=16)
+
+    ################################################## 
+    # Remove doublets
+    print('Removing doublets...')
+    snap.pp.scrublet(adatas, n_jobs=16)
+    snap.pp.filter_doublets(adatas, n_jobs=16)
+    
     ##################################################
     # Creat AnnDataSet object
     print('Creating AnnDataSet & Making barcodes unique...')
@@ -60,23 +71,10 @@ if __name__ == '__main__':
     )
     # Make the obs_names unique by adding sample names to barcodes
     adataset.obs_names = adataset.obs['sample'] + '+' + np.array(adataset.obs_names)
-
+   
     ##################################################
     # Make AnnDataSet object into anndata
     print('Converting AnnDataSet object to Anndata')
     adata = adataset.to_adata()
-
-    ################################################## 
-    # Select features
-    print('Selecting features...')
-    snap.pp.select_features(adata, n_jobs=16)
-
-    ################################################## 
-    # Remove doublets
-    print('Removing doublets...')
-    snap.pp.scrublet(adata, n_jobs=16)
-    snap.pp.filter_doublets(adata, n_jobs=16)
-    ################################################## 
-    # Remove doublets
     adata.write(output_path)
     print(f'Anndata object saved here:{output_path}')
