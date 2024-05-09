@@ -65,8 +65,11 @@ def extract_barcode(sequence, left_flank, right_flank):
 # Function to calculate average barcode length
 def calculate_avg_barcode_length(barcode_list):
     total_length = sum(len(sequence) for sequence in barcode_list)
-    average_length = total_length / len(barcode_list)
-    return average_length
+    if barcode_list:
+        average_length = total_length / len(barcode_list)
+        return average_length
+    else:
+        return 0
 ###########################
 # Create empty final results dataframe
 positive_libs = pd.DataFrame(columns = ['R1_library_ID', 
