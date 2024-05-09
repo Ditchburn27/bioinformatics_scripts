@@ -18,6 +18,7 @@ input_dir = args.input_dir
 
 ################################################################
 # Get list of Read 1 and Read 2 fastq files
+print('Making and sorting lists of fastqs...')
 files = os.listdir(input_dir)
 
 R1_fastqs = [fastq for fastq in files if fastq.startswith('UBL')
@@ -74,9 +75,10 @@ positive_libs = pd.DataFrame(columns = ['R1_library_ID',
                                      'R2_avg_barcode_length'])
 ###########################
 ## Loop to get results
+print('Extracting barcode sequences and calculating average barcode lengths...')
 # Read in files
 for R1_fastq, R2_fastq in zip(R1_fastqs, R2_fastqs):
-    with gzip.open(R1_fastq, 'rt') as R1, gzip.open(R2_fastq, 'rt') as R2:
+    with gzip.open(input_dir+'/'+R1_fastq, 'rt') as R1, gzip.open(input_dir+'/'+R2_fastq, 'rt') as R2:
         # Read first line (Header)
         R1_1 = R1.readline()
         R2_1 = R2.readline()
@@ -132,7 +134,11 @@ for R1_fastq, R2_fastq in zip(R1_fastqs, R2_fastqs):
 # Filter final results for barcodes > 20 bp
 positive_libs = positive_libs[positive_libs['R1_avg_barcode_length']>=21]
 # Save final results as csv
-positive_libs.to_csv(input_dir+'positive_UBL_barcode_libs.csv')
+outfile_name = 'positive_UBL_barcode_libs.csv'
+outfile_save = input_dir+'/'+outfile_name
+positive_libs.to_csv(outfile_save)
+
+print(f'Results are saved here:{outfile_save}')
 
 
 
