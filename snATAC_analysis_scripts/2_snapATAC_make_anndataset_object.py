@@ -67,7 +67,7 @@ if __name__ == '__main__':
     print('Creating AnnDataSet & Making barcodes unique...')
     adataset = snap.AnnDataSet(
         adatas=[(f.filename.split('/')[-1].split('.h5ad')[0], f) for f in adatas],
-        filename=f'{input_dir}/{output_name}'
+        filename=f'{input_dir}/AnnDataSet.h5ads'
     )
     # Make the obs_names unique by adding sample names to barcodes
     adataset.obs_names = adataset.obs['sample'] + '+' + np.array(adataset.obs_names)
