@@ -11,13 +11,13 @@ cd $input_dir
 bash "${script_dir}/fastp_trim_fastqs.sh" $input_dir $sampleID
 
 # BORG barcodes
-parallel bash "${script_dir}/get_U6_barcodes.sh" {} borg "${script_dir}/consensus_sequence.py" ::: UBL*BORG*R2*.fastq.gz
+parallel bash "${script_dir}/get_U6_barcodes.sh" {} borg "${script_dir}/consensus_sequence.py" "${script_dir}" ::: UBL*BORG*R2*.fastq.gz
 
 # SERLOIN barcodes
-parallel bash "${script_dir}/get_U6_barcodes.sh" {} serloin "${script_dir}/consensus_sequence.py" ::: UBL*SERLOIN*R2*.fastq.gz
+parallel bash "${script_dir}/get_U6_barcodes.sh" {} serloin "${script_dir}/consensus_sequence.py" "${script_dir}" ::: UBL*SERLOIN*R2*.fastq.gz
 
 # Random barcodes
-parallel bash "${script_dir}/get_U6_barcodes.sh" {} random "${script_dir}/consensus_sequence.py" ::: UBL*50bp*R2*.fastq.gz
+parallel bash "${script_dir}/get_U6_barcodes.sh" {} random "${script_dir}/consensus_sequence.py" "${script_dir}" ::: UBL*50bp*R2*.fastq.gz
 
 # Move results all into 1 parent directory
 mkdir -p "${input_dir}/results"

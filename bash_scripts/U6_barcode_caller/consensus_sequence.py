@@ -38,14 +38,22 @@ def update_reference(reference_file, consensus_sequence, barcode_type, library_i
     # Generate the string of Ns based on the length of random bases
     N_string = 'N' * random_bases_length
 
+    # Calculate how many N's should be replaced by the consensus sequence
+    num_N_to_replace = min(len(consensus_sequence), random_bases_length)
+
+    # Replace the first 'num_N_to_replace' bases of N_string with the consensus sequence
+    N_string_replaced = consensus_sequence[:num_N_to_replace] + N_string[num_N_to_replace:]
+
     # Replace the NNN bases with the consensus sequence
-    updated_reference = reference.replace(N_string, consensus_sequence)
+    updated_reference = reference.replace(N_string, N_string_replaced)
 
     # Construct the output filename with the library ID
     output_filename = f"{library_id}_{barcode_type}_reference.fa"
 
     with open(output_filename, 'w') as outfile:
         outfile.write(updated_reference)
+
+
 
 if __name__ == "__main__":
     if len(sys.argv) != 5:

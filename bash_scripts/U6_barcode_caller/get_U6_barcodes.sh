@@ -3,6 +3,7 @@
 sample=$1
 barcode_type=$2
 python_script=$3
+script_dir=$4
 
 UPS2_constant_region='GTCACTGTAAAACGACGGCCAGACTAGT'
 RANDOM_BC_constant_region='CGTACGGCTTTAAGGCCGGTCCTAGCAA'
@@ -17,15 +18,15 @@ mkdir -p "${library_id}_bowtie_indexes"
 
 if [ $barcode_type == "borg" ]; then
     constant_region=$BORG_constant_region
-    reference_filename="/scratch/u6_barcode_fastqs/BORG_RNLS.fa"
+    reference_filename="${script_dir}/BORG_RNLS.fa"
     barcode_pos='29-48'
 elif [ $barcode_type == "serloin" ]; then
     constant_region=$SERLOIN_constant_region
-    reference_filename="/scratch/u6_barcode_fastqs/SERLOIN_RNLS.fa"
+    reference_filename="${script_dir}/SERLOIN_RNLS.fa"
     barcode_pos='29-48'
 elif [ $barcode_type == "random" ]; then
     constant_region=$RANDOM_BC_constant_region
-    reference_filename="/scratch/u6_barcode_fastqs/U6_random_barcode_50_NT.fa"
+    reference_filename="${script_dir}/U6_random_barcode_50_NT.fa"
     barcode_pos='29-78'
 else
     echo "Invalid barcode type. Options are 'borg', 'serloin', or 'random'."
@@ -35,6 +36,7 @@ fi
 # Extract barcodes
 echo "Extracting barcodes with $barcode_type constant region..."
 zcat $sample | egrep $UPS2_constant_region | egrep $constant_region | awk 'NR%4==2' | cut -c $barcode_pos > "${library_id}_output.txt"
+awk "{sub(\"$constant_region.*\", \"\"); print}" "${library_id}_output.txt" > "${library_id}_tmp" && mv "${library_id}_tmp" "${library_id}_output.txt"
 
 # Generate reference fasta files with consensus barcodes
 updated_reference_filename="${library_id}_${barcode_type}_reference.fa"
@@ -58,9 +60,9 @@ samtools stats "${library_id}_alignment.sorted.bam" > "${library_id}_alignment_s
 
 # Clean up intermediate files
 rm -r "${library_id}_bowtie_indexes"
-rm "${library_id}_alignment.sam" "${library_id}_alignment.bam" "${library_id}_output.txt"
+rm "${library_id}_alignment.sam" "${library_id}_alignment.bam" 
 
 # Make directory to store outputs
 mkdir -p "${library_id}_results"
-mv "${library_id}_alignment_stats.txt" "${library_id}_alignment.sorted.bam.bai" "${library_id}_alignment.sorted.bam" "${updated_reference_filename}" "${library_id}_bt2_index.log" "${library_id}_bowtie.log" "${library_id}_results/"
+mv "${library_id}_alignment_stats.txt" "${library_id}_alignment.sorted.bam.bai" "${library_id}_alignment.sorted.bam" "${updated_reference_filename}" "${library_id}_bt2_index.log" "${library_id}_bowtie.log" "${library_id}_output.txt" "${library_id}_results/"
 
