@@ -1,0 +1,22 @@
+#!/bin/bash
+fastqs="/novaseq/Runs/210129_A00690_HLMNKDRXX_046/fastqs/Neuronal_Maturation/RL2366_2021_01_30_1085_ga22_snATAC/
+/novaseq/Runs/200925_A00690_HJ3T2DRXX_039/fastqs/Neuronal_Maturation/RL2207_2020_09_23_4320_ga24_snATAC/
+/novaseq/Runs/210129_A00690_HLMNKDRXX_046/fastqs/Neuronal_Maturation/RL2367_2021_01_30_5982_28d_snATAC/
+/novaseq/Runs/191127_A00690_HFHVLDRXX_016/fastqs/Neuronal_Maturation/RL1914_2019_11_27_4400_86d_PFC_snATAC/
+/novaseq/Runs/200925_A00690_HJ3T2DRXX_039/fastqs/Neuronal_Maturation/RL2208_2020_09_23_5947_179d_snATAC/
+/novaseq/Runs/210129_A00690_HLNL2DRXX_047/fastqs/Neuronal_Maturation/RL2371_2021_01_29_1671_301d_snATAC/
+/novaseq/Runs/200925_A00690_HJ3T2DRXX_039/fastqs/Neuronal_Maturation/RL2209_2020_09_23_5180_1_5_yr_snATAC/
+/novaseq/Runs/190724_A00690_HCLCNDRXX_006/fastqs/Neuronal_Maturation/RL1784_2019_07_22_snATAC_10X_PFC_C5871/
+/novaseq/Runs/200925_A00690_HJ3T2DRXX_039/fastqs/Neuronal_Maturation/RL2210_2020_09_23_6032_4yr_snATAC/
+/novaseq/Runs/210212_A00690_HLNMVDRXX_048/fastqs/Neuronal_Maturation/RL2364_2021_02_12_5408_6yr_snATAC/
+/novaseq/Runs/200124_A00690_HJ3W7DRXX_023/fastqs/Neuronal_Maturation/RL1994_2020_01_24_4337_8yr_PFC_snATAC/
+/novaseq/Runs/210129_A00690_HLMNKDRXX_046/fastqs/Neuronal_Maturation/RL2368_2021_01_30_6175_10yr_snATAC/
+/novaseq/Runs/210129_A00690_HLNL2DRXX_047/fastqs/Neuronal_Maturation/RL2372_2021_01_29_5936_14yr_snATAC/
+/novaseq/Runs/190724_A00690_HCLCNDRXX_006/fastqs/Neuronal_Maturation/RL1785_2019_07_22_snATAC_10X_PFC_C5935/
+/novaseq/Runs/200317_A00690_HJ5TLDRXX_029/fastqs/Neuronal_Maturation/RL2085_2020_03_17_C55_20yr_snATAC/
+/novaseq/Runs/210129_A00690_HLMNKDRXX_046/fastqs/Neuronal_Maturation/RL2369_2021_01_30_5751_25yr_snATAC/
+/novaseq/Runs/210129_A00690_HLNL2DRXX_047/fastqs/Neuronal_Maturation/RL2373_2021_01_29_5396_40yr_snATAC/"
+
+for fastq in $fastqs; do
+scp -r /dd_rundata${fastq} lditchburn@kaya.hpc.uwa.edu.au:/group/ll005/raw_data/cell_braindev_paper_snATAC_fastqs/
+done
