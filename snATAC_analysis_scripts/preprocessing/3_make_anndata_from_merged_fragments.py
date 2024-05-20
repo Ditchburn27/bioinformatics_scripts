@@ -18,7 +18,7 @@ fragment_file = args.fragment_file
 ######################################################
 # Import fragment file and make anndata object. 
 adata = snap.pp.import_data(fragment_file,
-                            genome=snap.genome.hg38,
+                            chrom_sizes=snap.genome.GRCh38,
                             sorted_by_barcode=False)
 
 adata.write('braindev_hg38_snATAC_raw.h5ad')
