@@ -1,13 +1,12 @@
 import snapatac2 as snap
 import argparse
-import pandas as pd
-import numpy as np
+import os
 
 ######################################################
 # CLI inputs
 arg_description = '''Script to make h5ad file
-from combined cellranger fragments.tsv.gz outputs with 
-library_id prefixed barcodes snATAC-seq using snapATAC2'''
+from cellranger fragments.tsv.gz outputs for 
+individual snATAC-seq samples using snapATAC2.'''
 
 parser = argparse.ArgumentParser(description=arg_description)
 parser.add_argument('fragment_file', type=str, help='''Path to 
@@ -36,13 +35,17 @@ print("Calculating TSSE scores...")
 snap.metrics.tsse(adata, snap.genome.GRCh38)
 
 print("Filtering cells...")
-snap.pp.filter_cells(adata, min_counts=2000, min_tsse=None)
+snap.pp.filter_cells(adata, min_counts=2000, min_tsse=1.5)
 
-print("Adding Tile Matrix...")
+print(f'Adding tile matrix with {bin_size} bp bins')
 snap.pp.add_tile_matrix(adata, bin_size=bin_size, counting_strategy='paired-insertion')
 
 print("Selecting features...")
 snap.pp.select_features(adata, blacklist=blacklist_file)
+
+print("Detecting and removing doublets...")
+snap.pp.scrublet(adata)
+snap.pp.filter_doublets(adata)
 
 print("Performing spectral embedding...")
 snap.tl.spectral(adata)
@@ -53,24 +56,6 @@ snap.tl.umap(adata)
 print("Running clustering analysis -> knn & leiden")
 snap.pp.knn(adata)
 snap.tl.leiden(adata)
-
-print("Calculating log10 fragments per cell")
-# Function for converting 'n_fragment' to int and calculating log10 'n_fragment' for plotting.
-def n_frag_int(adata, obs_col='n_fragment'):
-    # Get obs column series
-    n_fragment = adata.obs[obs_col]
-    # Ensure it is a pandas series
-    if not isinstance(n_fragment, pd.Series):
-        n_fragment = pd.Series(n_fragment)
-    # Convert data type to integer
-    n_fragment = n_fragment.astype(int)
-    # Get log10 of n_fragment
-    log10_n_fragment = np.log10(n_fragment)
-    # Write the modified column back to the AnnData object
-    adata.obs['n_fragment'] = n_fragment
-    adata.obs['log10_n_fragment'] = log10_n_fragment
-    return
-n_frag_int(adata)
 
 print(f'Anndata object saved as {output_file}')
 adata.write(output_file)

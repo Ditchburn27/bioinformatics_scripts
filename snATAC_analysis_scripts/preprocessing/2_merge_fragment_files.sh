@@ -27,6 +27,13 @@ mv temp_combined.tsv braindev_combined_fragments.tsv
 
 echo "All fragments have been combined into braindev_combined_fragments.tsv"
 
-## After running script remove extra contigs from fragments file:
-#grep -v -f <(sed 's/^/^/' contig_list.txt) braindev_combined_fragments.tsv > filtered_combined_fragments.tsv
+## remove extra contigs from fragments file:
+grep -v -f <(sed 's/^/^/' contig_list.txt) braindev_combined_fragments.tsv > filtered_combined_fragments.tsv
 
+echo "Removed additional non-chromosome contigs..."
+
+## gzip final fragments file and clean up
+gzip filtered_combined_fragments.tsv
+rm braindev_combined_fragments.tsv
+
+echo "Final results saved as filtered_combined_fragments.tsv"
