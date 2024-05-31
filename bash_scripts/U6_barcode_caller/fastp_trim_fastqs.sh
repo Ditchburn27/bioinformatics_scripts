@@ -12,12 +12,12 @@ trim() {
     local output_folder="$2"  # Pass output_folder explicitly
     echo "Trimming sample: $sample"
     echo "Output folder inside function: $output_folder"
-    fastp -i "$input_dir/${sample}"_R1*.gz -I "$input_dir/${sample}"_R2*.gz \
-    --detect_adapter_for_pe -o "$output_folder/${sample}_R1.fastq.gz" \
-    -O "$output_folder/${sample}_R2.fastq.gz" \
-    -h "$output_folder/${sample}_fastp_report.html" \
-    -j "$output_folder/${sample}_fastp_report.json" \
-    -R "$output_folder/${sample}_fastp_report"
+    fastp -i $input_dir/${sample}_R1*.gz -I $input_dir/${sample}_R2*.gz \
+    --detect_adapter_for_pe -o $output_folder/${sample}_R1_001.fastq.gz \
+    -O $output_folder/${sample}_R2_001.fastq.gz \
+    -h $output_folder/${sample}_fastp_report.html \
+    -j $output_folder/${sample}_fastp_report.json \
+    -R $output_folder/${sample}_fastp_report
 
 }
 
