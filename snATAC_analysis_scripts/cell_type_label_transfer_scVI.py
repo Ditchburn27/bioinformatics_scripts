@@ -20,6 +20,7 @@ parser.add_argument('snRNA_h5ad', type=str, help='''Path to
                     annotated snRNA-seq anndata object''')
 parser.add_argument('snATAC_h5ad', type=str, help='''Path to 
                     snATAC anndata object''')
+args = parser.parse_args()
 
 reference_file = args.snRNA_h5ad
 atac_file = args.snATAC_h5ad
