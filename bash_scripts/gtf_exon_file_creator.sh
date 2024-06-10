@@ -1,5 +1,9 @@
 #! bin/bash
-
+### Script to take a gtf file and extract only the exons lines.
+### exon gtf file is required for easy-sci RNA-seq pipeline.
+### The feature column is changed from 'exon' to 'gene'.
+### The final column is reformatted to match the example
+### provided by easy-sci (see their github) 
 input_gtf=$1
 output_gtf_name=$2
 
