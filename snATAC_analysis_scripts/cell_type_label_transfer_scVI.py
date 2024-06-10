@@ -29,6 +29,7 @@ atac_file = args.snATAC_h5ad
 # Make gene activity matrix
 print('Reading in datasets and making gene activity matrix...')
 reference = sc.read_h5ad(reference_file)
+reference.obs['cell_type'] = reference.obs['major_clust']
 atac = sc.read_h5ad(atac_file)
 query = snap.pp.make_gene_matrix(atac, gene_anno=snap.genome.GRCh38)
 query.obs['cell_type'] = pd.NA
