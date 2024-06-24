@@ -3,7 +3,11 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 import scanpy as sc
 import snapatac2 as snap
+from pybedtools import BedTool
+from multiprocessing import Pool, cpu_count
+from tqdm import tqdm
 
+#####################################
 ## Plot cell counts of specified obs for 
 ## different tsse thresholds. 
 def plot_tsse_countplots(adata, groupby_observation, log_scale=False):
@@ -46,7 +50,7 @@ def plot_tsse_countplots(adata, groupby_observation, log_scale=False):
     plt.tight_layout()
     plt.show()
 
-
+#####################################
 ## Function for mapping sub_cluster cell types to major_cluster
 # Define the function to map cell types to major clusters
 def map_to_major_cluster(cell_type):
@@ -98,6 +102,7 @@ def map_to_major_cluster(cell_type):
 # example usage:
 #adata.obs['major_cluster'] = adata.obs['cell_type'].apply(map_to_major_cluster)
 
+#####################################
 ## Function to map major_cluster into broader groups
 # Define the function to map major clusters to cluster groups
 def map_to_cluster_group(major_cluster):
@@ -114,6 +119,7 @@ def map_to_cluster_group(major_cluster):
 # example usage:
 #data.obs['cluster_group'] = adata.obs['major_cluster'].apply(map_to_cluster_group)
 
+#####################################
 ## Function to plot a grid of subplots for counting cell numbers
 ## for each label in the provided count key
 def plot_grouped_counts(adata, group_key, count_key, num_cols=5):
@@ -152,6 +158,7 @@ def plot_grouped_counts(adata, group_key, count_key, num_cols=5):
     plt.tight_layout()
     plt.show()
 
+#####################################
 ## Downsampling function - 
 ## adapted from Chuck's function for snRNA-seq
 # standardize library sizes by removing nucs with low libs and downsampling the rest
@@ -194,6 +201,7 @@ def standardize_libs(adata, tar_lib_sz=2500, seed=123):
     adata.X = adata.X.astype(float)
     return
 
+#####################################
 ## Function for spectral embedding to umap
 def spec_to_umap(adata, n_comps=30, distance_metric='cosine', sample_size=1.0, n_neighbors=50, seed=123, 
                  weighted_by_sd=True):
@@ -226,3 +234,54 @@ def spec_to_umap(adata, n_comps=30, distance_metric='cosine', sample_size=1.0, n
         snap.tl.leiden(adata)
         snap.tl.umap(adata, random_state=seed)
     return
+
+#####################################
+# Function for identifying genomic bins
+# that overlap with features in provided
+# bed file e.g. promoter, enhancers
+def region_overlaps_bed(args):
+    region, bed_file_bed = args
+    chrom, start_end = region.split(':')
+    start, end = map(int, start_end.split('-'))
+    region_bed = BedTool(f"{chrom} {start} {end}", from_string=True)
+    return bool(region_bed.intersect(bed_file_bed, u=True))
+
+def select_bin_region_features(adata, region_dict, region_column='regions'):
+    """
+    Adds columns to adata.var indicating if each region overlaps with any regions in the provided BED files.
+    
+    Parameters:
+    adata (AnnData): The AnnData object containing the data.
+    region_dict (dict): A dictionary where keys are the output column names and values are the paths to BED files.
+    region_column (str): The column in adata.var that contains the regions.
+    """
+    # Convert adata.var regions to a DataFrame
+    adata_df = pd.DataFrame({
+        'chrom': [region.split(':')[0] for region in adata.var[region_column]],
+        'start': [int(region.split(':')[1].split('-')[0]) for region in adata.var[region_column]],
+        'end': [int(region.split(':')[1].split('-')[1]) for region in adata.var[region_column]],
+        'region': adata.var[region_column]
+    })
+
+    # Loop through each item in the dictionary
+    for output_column, bed_file_path in region_dict.items():
+        # Read the BED file using pybedtools
+        bed_file_bed = BedTool(bed_file_path)
+
+        # Prepare arguments for multiprocessing
+        args = [(region, bed_file_bed) for region in adata.var[region_column]]
+
+        # Use multiprocessing to process regions in parallel with progress bar
+        with Pool(cpu_count()) as pool:
+            results = list(tqdm(pool.imap(region_overlaps_bed, args), total=len(args), desc=f"Processing {output_column}"))
+
+        # Add the results to the new column in adata.var
+        adata.var[output_column] = results
+
+#####################################
+# Function to print counts of regions
+# that are identified to overlap with
+# features from bed file. 
+def count_region_features(adata, region_feature_label='selected'):
+    true_count = adata.var[region_feature_label].sum()
+    print(f"Number of genomic bins that are {region_feature_label}: {true_count}")
