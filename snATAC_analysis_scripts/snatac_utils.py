@@ -204,7 +204,7 @@ def standardize_libs(adata, tar_lib_sz=2500, seed=123):
 #####################################
 ## Function for spectral embedding to umap
 def spec_to_umap(adata, n_comps=30, distance_metric='cosine', sample_size=1.0, n_neighbors=50, seed=123, 
-                 weighted_by_sd=True):
+                 weighted_by_sd=True, features='selected'):
     """
     Performs spectral embedding followed by UMAP for dimensionality reduction on the given Anndata object.
 
@@ -222,14 +222,16 @@ def spec_to_umap(adata, n_comps=30, distance_metric='cosine', sample_size=1.0, n
     - The function modifies the adata object in-place, adding the UMAP coordinates and cluster assignments.
     """
     if distance_metric=='cosine':
-        snap.tl.spectral(adata, random_state=seed, n_comps=n_comps, weighted_by_sd=weighted_by_sd)
+        snap.tl.spectral(adata, random_state=seed, n_comps=n_comps, 
+                         weighted_by_sd=weighted_by_sd, features=features)
         snap.pp.knn(adata, n_neighbors=n_neighbors, random_state=seed)
         snap.tl.leiden(adata)
         snap.tl.umap(adata, random_state=seed)
     else:
         snap.tl.spectral(adata, distance_metric=distance_metric,
                          sample_size=sample_size, random_state=seed,
-                         n_comps=n_comps, weighted_by_sd=weighted_by_sd)
+                         n_comps=n_comps, weighted_by_sd=weighted_by_sd,
+                         features=features)
         snap.pp.knn(adata, n_neighbors=n_neighbors, random_state=seed)
         snap.tl.leiden(adata)
         snap.tl.umap(adata, random_state=seed)
