@@ -6,6 +6,7 @@ import snapatac2 as snap
 from pybedtools import BedTool
 from multiprocessing import Pool, cpu_count
 from tqdm import tqdm
+import pandas as pd
 
 #####################################
 ## Plot cell counts of specified obs for 
