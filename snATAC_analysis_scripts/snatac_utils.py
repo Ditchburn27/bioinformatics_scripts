@@ -11,9 +11,70 @@ import pandas as pd
 #####################################
 ## Plot cell counts of specified obs for 
 ## different tsse thresholds. 
-def plot_tsse_countplots(adata, groupby_observation, log_scale=False):
+def plot_tsse_countplots(adata, groupby_observation, batch_key=None, log_scale=False):
     """
-    Plots cell counts of specified obs for different tsse thresholds.
+    Plots cell counts of specified obs for different tsse thresholds,
+    optionally further grouped by 'batch' or a custom key.
+    
+    Parameters:
+    - adata: Anndata object containing the observations data.
+    - groupby_observation: The key in adata.obs to group by (e.g., 'cell_type').
+    - batch_key: Optional; The key in adata.obs to use for further grouping (default: None).
+    - log_scale: Boolean, if True, sets y-axis to log scale.
+    """
+    if batch_key is None:
+        _plot_tsse_countplots_single(adata, groupby_observation, log_scale)
+    else:
+        # Unique batches in the data
+        batches = adata.obs[batch_key].unique()
+        num_batches = len(batches)
+        num_plots = 4  # We always want 4 plots per batch
+        
+        # Create figure and subplots based on number of batches and num_plots per row
+        fig, axes = plt.subplots(num_batches, num_plots, figsize=(16, 3 * num_batches), sharey=True)
+        
+        # Define the conditions for subplots
+        conditions = [
+            (adata.obs['tsse'] < 5),
+            (adata.obs['tsse'] >= 5) & (adata.obs['tsse'] < 10),
+            (adata.obs['tsse'] >= 10) & (adata.obs['tsse'] < 20),
+            (adata.obs['tsse'] >= 20)
+        ]
+        
+        # Titles for subplots
+        titles = [
+            'tsse < 5',
+            '5 <= tsse < 10',
+            '10 <= tsse < 20',
+            'tsse >= 20'
+        ]
+        
+        # Loop over batches and plot for each batch
+        for i, batch in enumerate(batches):
+            # Loop over conditions (tsse thresholds)
+            for j in range(num_plots):
+                ax = axes[i, j]  # Select the correct subplot
+                
+                cond = conditions[j]
+                
+                sns.countplot(x=groupby_observation, data=adata.obs[cond & (adata.obs[batch_key] == batch)],
+                              ax=ax, palette='Set3')
+                
+                ax.set_title(f'TSSE {titles[j]}, {batch_key}: {batch}')
+                ax.set_xlabel(groupby_observation)
+                ax.set_ylabel('Count')
+                if log_scale:
+                    ax.set_yscale('log')
+                plt.setp(ax.get_xticklabels(), rotation=45, ha='right')  # Rotate x-axis labels
+        
+        # Adjust layout and show plot
+        plt.tight_layout()
+        plt.show()
+
+def _plot_tsse_countplots_single(adata, groupby_observation, log_scale=False):
+    """
+    Helper function to plot cell counts of specified obs for different tsse thresholds
+    without further grouping by batch.
     
     Parameters:
     - adata: Anndata object containing the observations data.
@@ -22,8 +83,8 @@ def plot_tsse_countplots(adata, groupby_observation, log_scale=False):
     """
     # Create figure and 2x2 subplots with smaller figsize
     fig, axes = plt.subplots(2, 2, figsize=(10, 6), sharey=True)
-    # Flatten the axes array for easy iteration
     axes = axes.flatten()
+    
     # Define the conditions and titles for subplots
     conditions = [
         (adata.obs['tsse'] < 5),
@@ -37,20 +98,20 @@ def plot_tsse_countplots(adata, groupby_observation, log_scale=False):
         '10 <= tsse < 20',
         'tsse >= 20'
     ]
-    # Plot histograms for each condition
-    for ax, condition, title in zip(axes, conditions, titles):
-        subset = adata.obs[condition]
-        sns.countplot(data=subset, x=groupby_observation, ax=ax, palette="Set2", color="lightblue")
-        ax.set_title(title)
-        ax.set_xlabel(groupby_observation.capitalize())
-        ax.set_ylabel('Number of Cells')
-        ax.set_xticklabels(ax.get_xticklabels(), rotation=45)  # Rotate x-axis labels for readability
+    
+    for i, ax in enumerate(axes):
+        cond = conditions[i]
+        sns.countplot(x=groupby_observation, data=adata.obs[cond], ax=ax, palette='Set3')  # Set different colors
+        ax.set_title(titles[i])
+        ax.set_xlabel(groupby_observation)
+        ax.set_ylabel('Count')
         if log_scale:
-            ax.set_yscale('log')  # Set y-axis to log scale
-    # Adjust layout for better fit
+            ax.set_yscale('log')
+        plt.setp(ax.get_xticklabels(), rotation=45, ha='right')  # Rotate x-axis labels
+    
+    # Adjust layout and show plot
     plt.tight_layout()
     plt.show()
-
 #####################################
 ## Function for mapping sub_cluster cell types to major_cluster
 # Define the function to map cell types to major clusters
