@@ -349,3 +349,178 @@ def select_bin_region_features(adata, region_dict, region_column='regions'):
 def count_region_features(adata, region_feature_label='selected'):
     true_count = adata.var[region_feature_label].sum()
     print(f"Number of genomic bins that are {region_feature_label}: {true_count}")
+
+#####################################
+# Function for plotting scatter plot
+# of adata.obs columns
+def scatter_plot_by_group(adata, x_var, y_var, groupby_var=None):
+    """
+    Plot scatter plots of x_var vs y_var grouped by groupby_var if provided.
+
+    Parameters:
+    adata (AnnData): Annotated data object containing the data.
+    x_var (str): Name of the observation column for the x-axis.
+    y_var (str): Name of the observation column for the y-axis.
+    groupby_var (str or None): Name of the observation column for grouping.
+                               If None, plot a single plot for the whole dataset.
+    """
+    if groupby_var is None:
+        # Plot a single plot for the whole dataset
+        fig, ax = plt.subplots(figsize=(8, 4))
+        x = adata.obs[x_var]
+        y = adata.obs[y_var]
+
+        # Calculate the trend line
+        coefficients = np.polyfit(x, y, 1)
+        polynomial = np.poly1d(coefficients)
+        trend_line = polynomial(x)
+
+        # Calculate the correlation coefficient
+        correlation_coefficient, p_value = pearsonr(x, y)
+
+        # Create scatter plot
+        ax.scatter(x, y, alpha=0.2)
+        ax.plot(x, trend_line, color='grey', label=f'Correlation (r={correlation_coefficient:.2f})')
+
+        # Add titles and labels
+        ax.set_title(f'{x_var} vs {y_var}', fontsize=14)
+        ax.set_xlabel(x_var, fontsize=12)
+        ax.set_ylabel(y_var, fontsize=12)
+
+        # Customize tick labels
+        ax.tick_params(axis='both', labelsize=10)
+
+        # Add legend
+        ax.legend(fontsize=10)
+
+        # Show plot
+        plt.show()
+
+    else:
+        # Group by groupby_var and plot separate subplots
+        categories = adata.obs[groupby_var].cat.categories
+        n_rows = len(categories) // 2 + len(categories) % 2
+        n_cols = 2
+
+        fig, axs = plt.subplots(n_rows, n_cols, figsize=(15, 5 * n_rows))
+        axs = axs.flatten()
+
+        # Iterate over each category
+        for i, category in enumerate(categories):
+            ax = axs[i]
+            subset = adata[adata.obs[groupby_var] == category]
+            x = subset.obs[x_var]
+            y = subset.obs[y_var]
+
+            # Calculate the trend line
+            coefficients = np.polyfit(x, y, 1)
+            polynomial = np.poly1d(coefficients)
+            trend_line = polynomial(x)
+
+            # Calculate the correlation coefficient
+            correlation_coefficient, p_value = pearsonr(x, y)
+
+            # Get color for the category from adata.uns[groupby_var + '_colors'] if available
+            if f'{groupby_var}_colors' in adata.uns:
+                colors = adata.uns[f'{groupby_var}_colors']
+                color = colors[i % len(colors)]
+            else:
+                color = 'blue'  # Default color if colors not available
+
+            # Create scatter plot with the corresponding color
+            ax.scatter(x, y, alpha=0.2, color=color)
+            ax.plot(x, trend_line, color='grey', label=f'Correlation (r={correlation_coefficient:.2f})')
+
+            # Add titles and labels
+            ax.set_title(f'{x_var} vs {y_var} - {groupby_var}: {category}', fontsize=16)
+            ax.set_xlabel(x_var, fontsize=12)
+            ax.set_ylabel(y_var, fontsize=12)
+
+            # Customize tick labels
+            ax.tick_params(axis='both', labelsize=10)
+
+            # Add legend
+            ax.legend(fontsize=10)
+
+        # Remove any extra empty subplots
+        for i in range(len(categories), len(axs)):
+            fig.delaxes(axs[i])
+
+        # Adjust layout
+        plt.tight_layout()
+        plt.subplots_adjust(top=0.93)
+
+        # Add main figure title
+        plt.suptitle(f'Scatter plot of {x_var} vs {y_var} by {groupby_var}', fontsize=20)
+
+        # Show plot
+        plt.show()
+
+#####################################
+# Function for plotting scatter plot
+# of adata.obs columns with a list 
+# of columns for the y variable
+def scatter_plot_multiple_y(adata, x_var, y_vars):
+    """
+    Plot scatter plots of x_var vs each y_var in y_vars with data points colored differently for each subplot.
+
+    Parameters:
+    adata (AnnData): Annotated data object containing the data.
+    x_var (str): Name of the observation column for the x-axis.
+    y_vars (list of str): List of observation column names for the y-axis.
+    """
+    n_plots = len(y_vars)
+    n_rows = n_plots // 2 + n_plots % 2
+    n_cols = 2
+
+    fig, axs = plt.subplots(n_rows, n_cols, figsize=(15, 5 * n_rows))
+    axs = axs.flatten()
+
+    # Get a colormap for the plots
+    cmap = plt.cm.get_cmap('Set2')
+
+    # Loop through each y variable and assign different colors for each subplot
+    for i, y_var in enumerate(y_vars):
+        ax = axs[i]
+        x = adata.obs[x_var]
+        y = adata.obs[y_var]
+
+        # Calculate the trend line
+        coefficients = np.polyfit(x, y, 1)
+        polynomial = np.poly1d(coefficients)
+        trend_line = polynomial(x)
+
+        # Calculate the correlation coefficient
+        correlation_coefficient, p_value = pearsonr(x, y)
+
+        # Plot scatter plot with different colors for each subplot and add transparency
+        color = cmap(i / n_plots)  # Assign color based on subplot index
+        ax.scatter(x, y, color=color, alpha=0.2, edgecolor='none')
+
+        # Plot trend line
+        ax.plot(x, trend_line, color='grey', label=f'Correlation (r={correlation_coefficient:.2f})')
+
+        # Add titles and labels
+        ax.set_title(f'{x_var} vs {y_var}', fontsize=14)
+        ax.set_xlabel(x_var, fontsize=12)
+        ax.set_ylabel(y_var, fontsize=12)
+
+        # Customize tick labels
+        ax.tick_params(axis='both', labelsize=10)
+
+        # Add legend
+        ax.legend(fontsize=10)
+
+    # Remove any extra empty subplots
+    for i in range(n_plots, len(axs)):
+        fig.delaxes(axs[i])
+
+    # Adjust layout
+    plt.tight_layout()
+    plt.subplots_adjust(top=0.9)
+
+    # Add main figure title outside subplots
+    plt.suptitle(f'Scatter plot of {x_var} vs multiple observations', fontsize=20)
+
+    # Show plot
+    plt.show()
