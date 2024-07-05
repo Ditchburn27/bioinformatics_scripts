@@ -531,7 +531,7 @@ def scatter_plot_multiple_y(adata, x_var, y_vars):
 #####################################
 # Function for counting number of doublets
 # and removing doublets
-def count_remove_doublets(adata=adata, groupby='library_id'):
+def count_remove_doublets(adata, groupby='library_id'):
     """
     Count and remove doublets from an AnnData object.
 
