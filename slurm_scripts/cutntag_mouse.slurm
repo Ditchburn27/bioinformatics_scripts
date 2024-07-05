@@ -11,7 +11,6 @@
 ##SBATCH --mail-user=22720224@student.uwa.edu.au
 ##SBATCH --mail-type=BEGIN,END
 
-set -eu -o pipefail -o verbose
 
 # Start of job
 echo $SLURM_JOB_NAME job started at  `date`
