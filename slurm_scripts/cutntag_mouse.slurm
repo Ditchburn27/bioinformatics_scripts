@@ -16,7 +16,7 @@
 echo $SLURM_JOB_NAME job started at  `date`
 
 # To compile with the GNU toolchain
-module load Anaconda3/2020.11
+module load Anaconda3/2023.07
 conda activate /group/ll005/envs/cutntag
 
 #  Note: SLURM_JOBID is a unique number for every job.
@@ -25,6 +25,8 @@ JOBNAME=${SLURM_JOB_NAME}
 SCRATCH=$MYSCRATCH/$JOBNAME/$SLURM_JOBID
 BOWTIE2_INDEX=/group/ll005/reference/bowtie2_mm10/mm10/mm10
 BLACKLIST=/group/ll005/reference/bowtie2_mm10/blacklist/mm10-blacklist.v2.bed
+# take input directory with fastqs
+FASTQ=$1
 ###############################################
 # Creates a unique directory in the SCRATCH directory for this job to run in.
 if [ ! -d $SCRATCH ]; then 
@@ -41,7 +43,7 @@ mkdir -p ${SCRATCH}/MACS2/{narrow,broad}
 mkdir -p ${SCRATCH}/logs/{fastp,bowtie2,dedup}
 
 ### COPY files to scratch
-cp fastq/*gz ${SCRATCH}/fastq
+cp ${FASTQ}/*gz ${SCRATCH}/fastq
 
 ## IMPORTANT: change directory to scratch
 
