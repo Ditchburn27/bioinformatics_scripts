@@ -25,7 +25,7 @@ tmp_file=$(mktemp)
 # Process each barcode and write results to temporary file
 awk -F, -v total_reads="$total_reads" '
 NR>1 {
-    cmd="zcat \"'$fastq_file'\" | egrep \""$1"\" | awk \"NR%4==2\" | wc -l";
+    cmd="zcat \"'$fastq_file'\" | awk \"NR%4==2\"| egrep \""$1"\"  | wc -l";
     cmd | getline count; close(cmd);
     sum+=count;
     printf("%s,%s,%s,%d,%.2f\n", $1, $2, $3, count, (count/total_reads)*100) >> "tmp_file"
