@@ -20,25 +20,6 @@ awk 'BEGIN {OFS="\t"} {print $1, $2, $3, $4, $5, $6, $7, $8, $9 " " $10 ";" $11 
 awk 'BEGIN {OFS="\t"} {if ($3 == "exon") $3 = "gene"; print}' tmp9.gtf > tmp10.gtf
 awk 'BEGIN {OFS="\t"} {print $1, $2, $3, $4, $5, $6, $7, $8, $9 " " $10 " " $11 " " $12}' tmp10.gtf > $output_gtf_name
 
-echo "Reformatting exon gtf file"
-while IFS=$'\t' read -r -a fields; do
-    # Get the last field (attribute field)
-    attributes=${fields[8]}
-    
-    # Remove the trailing semicolon and add spaces after semicolons
-    formatted_attributes=$(echo "$attributes" | sed 's/; /;/g' | sed 's/;/; /g' | sed 's/; $//')
-
-    # Reconstruct the line with formatted attributes
-    fields[8]=$formatted_attributes
-    formatted_line=$(printf "%s\t" "${fields[@]}")
-    formatted_line=${formatted_line%$'\t'}
-    
-    # Write the formatted line to the output file
-    echo -e "$formatted_line" >> tmp11.gtf
-done < "$output_gtf_name"
-
-mv tmp11.gtf $output_gtf_name
-
 echo "exon gtf saved to $output_gtf_name."
 
 # Clean up temporary files
