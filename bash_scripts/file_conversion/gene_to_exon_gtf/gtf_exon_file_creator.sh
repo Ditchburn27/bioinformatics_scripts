@@ -7,6 +7,7 @@
 input_gtf=$1
 output_gtf_name=$2
 
+echo "Extracting exon entries from gtf..."
 awk -F "\t" '$3=="exon"' $input_gtf > tmp1.gtf
 tr ';' '\t' < tmp1.gtf > tmp2.gtf
 awk -F'"' 'BEGIN {OFS="\t"} {$1=$1; gsub(/ +/, "\t"); gsub(/"/, "", $2); print}' tmp2.gtf > tmp3.gtf
@@ -19,6 +20,7 @@ awk 'BEGIN {OFS="\t"} {print $1, $2, $3, $4, $5, $6, $7, $8, $9 " " $10 ";" $11 
 awk 'BEGIN {OFS="\t"} {if ($3 == "exon") $3 = "gene"; print}' tmp9.gtf > tmp10.gtf
 awk 'BEGIN {OFS="\t"} {print $1, $2, $3, $4, $5, $6, $7, $8, $9 " " $10 " " $11 " " $12}' tmp10.gtf > $output_gtf_name
 
+echo "Reformatting exon gtf file"
 while IFS=$'\t' read -r -a fields; do
     # Get the last field (attribute field)
     attributes=${fields[8]}
@@ -36,6 +38,8 @@ while IFS=$'\t' read -r -a fields; do
 done < "$output_gtf_name"
 
 mv tmp11.gtf $output_gtf_name
+
+echo "exon gtf saved to $output_gtf_name."
 
 # Clean up temporary files
 rm tmp*.gtf
