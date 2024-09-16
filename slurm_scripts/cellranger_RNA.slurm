@@ -45,8 +45,7 @@ if [ ! -d $SCRATCH ]; then
 fi 
 echo SCRATCH is $SCRATCH
 
-mkdir -p ${SCRATCH}/fastqs
-cp -r $input_files ${SCRATCH}/fastqs/
+cp -r $input_files ${SCRATCH}/
 
 cd $SCRATCH
 
