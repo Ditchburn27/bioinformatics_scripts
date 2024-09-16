@@ -15,8 +15,6 @@
 #  These are generic variables
 JOBNAME=${SLURM_JOB_NAME}
 SCRATCH=$MYSCRATCH/$JOBNAME/$SLURM_JOBID
-REFERENCE=/group/ll005/reference/GRCh38-2020
-
 ################################################ 
 #Take command line inputs
 if [ -z "$1" ]
@@ -28,6 +26,16 @@ then
       exit 1
 else
       input_files=$1
+fi
+if [ -z "$2" ]
+then
+      echo -ne "
+      ################\n
+      Second argument is empty. Please provide reference file directory.\n
+      ################\n"
+      exit 1
+else
+      TRANSCRIPTOME=$2
 fi
 
 ###############################################
@@ -44,4 +52,13 @@ cd $SCRATCH
 
 ###############################################
 # Run cellranger count
-cellranger count --id=RL2290 --fastqs=fastqs/RL2290_2021_03_11_Organoid_12mo_DigitoninPostSort_10xTEST_snRNAseq_v2 --sample=RL2290_2021_03_11_Organoid_12mo_DigitoninPostSort_10xTEST_snRNAseq --transcriptome=$REFERENCE
+FASTQ_DIR='fastqs'
+# Loop through each unique sample name in the FASTQ file names
+for SAMPLE_NAME in $(ls $FASTQ_DIR/*.fastq.gz | sed -E 's/.*\/([^_]+).*/\1/' | sort | uniq); do
+  # Run cellranger count for each sample
+  cellranger count \
+    --id=$SAMPLE_NAME \
+    --fastqs=$FASTQ_DIR \
+    --sample=$SAMPLE_NAME \
+    --transcriptome=$TRANSCRIPTOME
+done
