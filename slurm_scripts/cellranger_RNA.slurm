@@ -13,7 +13,7 @@
 
 JOBNAME=${SLURM_JOB_NAME}
 SCRATCH=$MYSCRATCH/$JOBNAME/$SLURM_JOBID
-################################################ 
+
 # Take command line inputs
 if [ -z "$1" ]; then
   echo -ne "
@@ -34,32 +34,32 @@ else
   TRANSCRIPTOME=$2
 fi
 
-###############################################
 # Create a unique directory in the SCRATCH directory for this job to run in.
 if [ ! -d $SCRATCH ]; then 
   mkdir -p $SCRATCH 
 fi 
-echo SCRATCH is $SCRATCH
+echo "SCRATCH is $SCRATCH"
 
 cp -r $input_files ${SCRATCH}/
 
 cd $SCRATCH
 
-###############################################
-# FASTQ directory
+# Define FASTQ directory
 FASTQ_DIR='fastqs'
 
 # Run cellranger count for each sample
-for file in $FASTQ_DIR/*_R1_001.fastq.gz; do
-  # Extract sample name by removing _S1_L001_R1_001.fastq.gz
-  SAMPLE_NAME=$(basename "$file" | sed -E 's/_S[0-9]+_L[0-9]+_R1_001\.fastq\.gz//')
+for file in "$FASTQ_DIR"/*_R1_001.fastq.gz; do
+  # Extract sample name by removing only _R1_001.fastq.gz, keeping everything else
+  SAMPLE_NAME=$(basename "$file" | sed -E 's/_R1_001\.fastq\.gz//')
   
-  # Run cellranger count for each sample
+  # Ensure SAMPLE_NAME does not contain invalid characters
+  SAMPLE_NAME=$(echo "$SAMPLE_NAME" | tr -cd '[:alnum:]_-')
+  
   echo "Running cellranger count for sample: $SAMPLE_NAME"
   
   cellranger count \
-    --id="${SAMPLE_NAME}" \
+    --id="$SAMPLE_NAME" \
     --fastqs=$FASTQ_DIR \
-    --sample="${SAMPLE_NAME}" \
+    --sample="$SAMPLE_NAME" \
     --transcriptome=$TRANSCRIPTOME
 done
