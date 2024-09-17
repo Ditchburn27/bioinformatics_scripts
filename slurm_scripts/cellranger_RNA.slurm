@@ -11,8 +11,6 @@
 ##SBATCH --mail-user=22720224@student.uwa.edu.au
 ##SBATCH --mail-type=BEGIN,END
 
-#  Note: SLURM_JOBID is a unique number for every job.
-#  These are generic variables
 JOBNAME=${SLURM_JOB_NAME}
 SCRATCH=$MYSCRATCH/$JOBNAME/$SLURM_JOBID
 ################################################ 
@@ -52,8 +50,9 @@ cd $SCRATCH
 ###############################################
 # Run cellranger count
 FASTQ_DIR='fastqs'
-# Loop through each unique sample name in the FASTQ file names
-for SAMPLE_NAME in $(ls $FASTQ_DIR/*.fastq.gz | sed -E 's/.*\/([^_]+).*/\1/' | sort | uniq); do
+
+# Extract the correct sample name pattern from the FASTQ file name
+for SAMPLE_NAME in $(ls $FASTQ_DIR/*.fastq.gz | sed -E 's/(.*)_S[0-9]+_L[0-9]+_R[12]_001\.fastq\.gz/\1/' | sort | uniq); do
   # Run cellranger count for each sample
   cellranger count \
     --id=$SAMPLE_NAME \
