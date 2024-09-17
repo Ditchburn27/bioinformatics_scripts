@@ -46,20 +46,20 @@ cp -r $input_files ${SCRATCH}/
 cd $SCRATCH
 
 ###############################################
-# Fix file names if needed
+# FASTQ directory
 FASTQ_DIR='fastqs'
 
-# Run cellranger count
+# Run cellranger count for each sample
 for file in $FASTQ_DIR/*_R1_001.fastq.gz; do
   # Extract sample name by removing _S1_L001_R1_001.fastq.gz
-  SAMPLE_NAME=$(basename "$file" | sed -E 's/_S[0-9]+_L[0-9]+_R[12]_001\.fastq\.gz//')
+  SAMPLE_NAME=$(basename "$file" | sed -E 's/_S[0-9]+_L[0-9]+_R1_001\.fastq\.gz//')
   
   # Run cellranger count for each sample
   echo "Running cellranger count for sample: $SAMPLE_NAME"
   
   cellranger count \
-    --id=$SAMPLE_NAME \
+    --id="${SAMPLE_NAME}" \
     --fastqs=$FASTQ_DIR \
-    --sample=$SAMPLE_NAME \
+    --sample="${SAMPLE_NAME}" \
     --transcriptome=$TRANSCRIPTOME
 done
