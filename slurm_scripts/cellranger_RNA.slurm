@@ -51,12 +51,12 @@ FASTQ_DIR='fastqs'
 
 # Extract the correct sample name pattern from the FASTQ file name
 for file in $FASTQ_DIR/*.fastq.gz; do
-  # Extract the sample name without path and file extension
-  SAMPLE_NAME=$(basename "$file" | sed -E 's/(.*)_S[0-9]+_L[0-9]+_R[12]_001\.fastq\.gz/\1/' | sort | uniq)
+  # Extract the base sample name, removing all suffixes after the main sample identifier
+  SAMPLE_NAME=$(basename "$file" | sed -E 's/_S[0-9]+_L[0-9]+_R[12]_001\.fastq\.gz//' | sort | uniq)
   
-  # Create a valid sample ID by replacing invalid characters with underscores
+  # Create a valid sample ID for cellranger (no invalid characters)
   SAMPLE_ID=$(echo "$SAMPLE_NAME" | sed 's/[^a-zA-Z0-9_-]/_/g')
-  
+
   # Run cellranger count for each sample
   echo "Running cellranger count for sample: $SAMPLE_ID"
   
