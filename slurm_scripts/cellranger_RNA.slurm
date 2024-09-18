@@ -1,7 +1,7 @@
 #!/bin/bash --login
 
 #SBATCH --job-name=cellranger_RNA_count
-#SBATCH --partition=work
+#SBATCH --partition=peb
 #SBATCH --mem-per-cpu=10G
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
@@ -33,6 +33,15 @@ if [ -z "$2" ]; then
 else
   TRANSCRIPTOME=$2
 fi
+if [ -z "$3" ]; then
+  echo -ne "
+  ################\n
+  Third argument is empty. Please provide sample file (sample.txt).\n
+  ################\n"
+  exit 1
+else
+  SAMPLE_FILE=$3
+fi
 
 # Create a unique directory in the SCRATCH directory for this job to run in.
 if [ ! -d $SCRATCH ]; then 
@@ -41,25 +50,21 @@ fi
 echo "SCRATCH is $SCRATCH"
 
 cp -r $input_files ${SCRATCH}/
+cp $SAMPLE_FILE ${SCRATCH}
 
 cd $SCRATCH
 
 # Define FASTQ directory
 FASTQ_DIR='fastqs'
 
-# Run cellranger count for each sample
-for file in "$FASTQ_DIR"/*_R1_001.fastq.gz; do
-  # Extract sample name by removing only _R1_001.fastq.gz, keeping everything else
-  SAMPLE_NAME=$(basename "$file" | sed -E 's/_R1_001\.fastq\.gz//')
-  
-  # Ensure SAMPLE_NAME does not contain invalid characters
-  SAMPLE_NAME=$(echo "$SAMPLE_NAME" | tr -cd '[:alnum:]_-')
-  
+# Read sample names from the sample.txt file and run cellranger count for each sample
+while IFS= read -r SAMPLE_NAME; do
   echo "Running cellranger count for sample: $SAMPLE_NAME"
   
   cellranger count \
     --id="$SAMPLE_NAME" \
     --fastqs=$FASTQ_DIR \
     --sample="$SAMPLE_NAME" \
-    --transcriptome=$TRANSCRIPTOME
-done
+    --transcriptome=$TRANSCRIPTOME \
+    --chemistry='ARC-v1'
+done < "$SAMPLE_FILE"
