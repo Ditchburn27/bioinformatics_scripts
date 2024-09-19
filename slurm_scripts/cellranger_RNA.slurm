@@ -14,7 +14,24 @@
 JOBNAME=${SLURM_JOB_NAME}
 SCRATCH=$MYSCRATCH/$JOBNAME/$SLURM_JOBID
 
-# Take command line inputs
+# Default chemistry value
+CHEMISTRY="auto"
+
+# Parse command line options
+while getopts ":c:" opt; do
+  case ${opt} in
+    c )
+      CHEMISTRY=$OPTARG
+      ;;
+    \? )
+      echo "Invalid option: $OPTARG" 1>&2
+      exit 1
+      ;;
+  esac
+done
+shift $((OPTIND -1))
+
+# Take positional arguments (input_files, TRANSCRIPTOME, SAMPLE_FILE)
 if [ -z "$1" ]; then
   echo -ne "
   ################\n
@@ -66,5 +83,5 @@ while IFS= read -r SAMPLE_NAME; do
     --fastqs=$FASTQ_DIR \
     --sample="$SAMPLE_NAME" \
     --transcriptome=$TRANSCRIPTOME \
-    --chemistry='ARC-v1'
+    --chemistry=$CHEMISTRY
 done < "$SAMPLE_FILE"
