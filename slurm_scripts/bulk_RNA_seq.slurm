@@ -97,6 +97,7 @@ parallel -j5 "samtools index {} {.}.bam.bai" ::: sorted_bam/*bam
 featureCounts -T ${SLURM_CPUS_PER_TASK} -s 2 -p -a ${GTF_file} -o featureCounts/counts.txt sorted_bam/*.sorted.bam
 
 #7. multiqc 
+conda activate cutntag
 multiqc .
 
 echo $JOBNAME job finished at  `date`
