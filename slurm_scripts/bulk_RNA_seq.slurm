@@ -1,6 +1,6 @@
 #!/bin/bash --login
 
-#SBATCH --job-name=CUTnTag
+#SBATCH --job-name=Bulk_RNAseq
 #SBATCH --partition=peb
 #SBATCH --mem-per-cpu=5G
 #SBATCH --nodes=1
