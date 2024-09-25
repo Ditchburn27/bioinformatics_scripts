@@ -40,7 +40,7 @@ echo SCRATCH is $SCRATCH
 #   Copy input files to $SCRATCH
 #   then change directory to $SCRATCH
 
-mkdir -p ${SCRATCH}/{fastq,fastqc,trimmed_fastq,sorted_bam, featureCounts}
+mkdir -p ${SCRATCH}/{fastq,fastqc,trimmed_fastq,sorted_bam,featureCounts}
 mkdir -p ${SCRATCH}/logs/{fastp,hisat2}
 
 ### COPY files to scratch
