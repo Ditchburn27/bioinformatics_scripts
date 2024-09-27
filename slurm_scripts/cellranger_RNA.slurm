@@ -62,7 +62,7 @@ fi
 
 # Create a unique directory in the SCRATCH directory for this job to run in.
 if [ ! -d $SCRATCH ]; then 
-  mkdir -p ${SCRATCH}/{fastqs} 
+  mkdir -p ${SCRATCH}/fastqs 
 fi 
 echo "SCRATCH is $SCRATCH"
 
