@@ -62,11 +62,11 @@ fi
 
 # Create a unique directory in the SCRATCH directory for this job to run in.
 if [ ! -d $SCRATCH ]; then 
-  mkdir -p $SCRATCH 
+  mkdir -p ${SCRATCH}/{fastqs} 
 fi 
 echo "SCRATCH is $SCRATCH"
 
-cp -r $input_files ${SCRATCH}/
+cp -r $input_files/*.fastq.gz ${SCRATCH}/fastqs
 cp $SAMPLE_FILE ${SCRATCH}
 
 cd $SCRATCH
