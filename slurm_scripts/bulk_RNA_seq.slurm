@@ -2,10 +2,10 @@
 
 #SBATCH --job-name=Bulk_RNAseq
 #SBATCH --partition=peb
-#SBATCH --mem-per-cpu=5G
+#SBATCH --mem-per-cpu=30G
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
-#SBATCH --cpus-per-task=35
+#SBATCH --cpus-per-task=10
 #SBATCH --time=24:00:00   
 #SBATCH --export=NONE
 ##SBATCH --mail-user=22720224@student.uwa.edu.au
