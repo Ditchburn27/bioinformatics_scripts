@@ -52,7 +52,7 @@ cd $SCRATCH
 ###################
 #1. FastqQC
 
-fastqc fastq/*fastq.gz -o ${SCRATCH}/fastqc --threads ${SLURM_CPUS_PER_TASK}
+fastqc fastq/*fastq.gz -o ${SCRATCH}/fastqc --threads 20
 
 #2.get the read1 and read2 name and put in a file
 ls fastq/*_R1*fastq.gz >> read1
@@ -69,7 +69,7 @@ do
 	html=$(basename ${i%_R1_001.fastq.gz}_fastp_report.html)
 	report=$(basename ${i%_R1_001.fastq.gz}_fastp_report)
 	fastp_log=$(basename ${i%_R1_001.fastq.gz}_fastp.out)
-	fastp -w ${SLURM_CPUS_PER_TASK} -x -y \
+	fastp -w 20 -x -y \
 	-i $i \
 	-I $j \
 	-o ${SCRATCH}/trimmed_fastq/${fastp_R1} \
@@ -89,12 +89,12 @@ do
 	echo $i $j
     hisat2_log=$(basename ${i%_R1_001_trimmed.fastq.gz}_hisat2.txt)
 	sorted_bam=$(basename ${i%_R1_001_trimmed.fastq.gz}.sorted.bam)
-    hisat2 -p ${SLURM_CPUS_PER_TASK} --rna-strandness 'RF' --dta -x $INDEX -1 $i -2 $j --summary-file logs/hisat2/${hisat2_log}| samtools view -bS -F 4 - | samtools sort -o sorted_bam/${sorted_bam} - 
+    hisat2 -p 20 --rna-strandness 'RF' --dta -x $INDEX -1 $i -2 $j --summary-file logs/hisat2/${hisat2_log}| samtools view -bS -F 4 - | samtools sort -o sorted_bam/${sorted_bam} - 
     done < trimmed_read2
 parallel -j5 "samtools index {} {.}.bam.bai" ::: sorted_bam/*bam
 
 #6. featureCounts
-featureCounts -T ${SLURM_CPUS_PER_TASK} -s 2 -p -a ${GTF_file} -o featureCounts/counts.txt sorted_bam/*.sorted.bam
+featureCounts -T 20 -s 2 -p -a ${GTF_file} -o featureCounts/counts.txt sorted_bam/*.sorted.bam
 
 #7. multiqc 
 conda activate cutntag
