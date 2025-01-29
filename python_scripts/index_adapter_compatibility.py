@@ -88,7 +88,7 @@ def main():
     hamming_df = pd.DataFrame(filtered_hamming_matrix, index=filtered_names1, columns=filtered_names2)
 
     # Plot the heatmap with red-green color scale
-    plt.figure(figsize=(15, 12))
+    plt.figure(figsize=(30, 24))
     sns.heatmap(hamming_df, annot=True, cmap='RdYlGn', cbar=True, fmt='.0f')
     plt.title(args.title)  # Use the provided title for the plot
     plt.xlabel(base_name2)  # Use base names for x-axis
