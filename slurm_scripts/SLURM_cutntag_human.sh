@@ -17,7 +17,7 @@
 echo $SLURM_JOB_NAME job started at  `date`
 
 # To compile with the GNU toolchain
-module load Anaconda3/2020.11
+module load Anaconda3/2023.07
 conda activate /group/ll005/envs/cutntag
 
 #  Note: SLURM_JOBID is a unique number for every job.
