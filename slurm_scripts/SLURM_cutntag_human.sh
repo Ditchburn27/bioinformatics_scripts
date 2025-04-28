@@ -17,7 +17,7 @@
 echo $SLURM_JOB_NAME job started at  `date`
 
 # To compile with the GNU toolchain
-module load Anaconda3/2020.11
+module load Anaconda3/2023.07
 conda activate /group/ll005/envs/cutntag
 
 #  Note: SLURM_JOBID is a unique number for every job.
@@ -116,6 +116,11 @@ rm fragment_bed/*.bam
 parallel -j5 macs2 callpeak -t {} -f BEDPE --keep-dup all --broad-cutoff 0.05 --broad --gsize hs -n {/.} --outdir MACS2/broad ::: $(ls fragment_bed/*.bed)
 parallel -j5 macs2 callpeak -t {} -f BEDPE --keep-dup all -q 0.05 --gsize hs -n {/.} --outdir MACS2/narrow ::: $(ls fragment_bed/*.bed)
 
+#9.5 Updated peak calling method
+#narrow
+parallel -j5 macs2 callpeak -t {} -f BAMPE --keep-dup all --nolambda --nomodel --gsize mm -q 1e-5 -n {/.} --outdir MACS2/narrow1 ::: $(ls dedup_bam/*.bam)
+#broad
+parallel -j5 macs2 callpeak -t {} -f BAMPE --keep-dup all --broad --nolambda --nomodel --gsize mm -q 1e-5 -n {/.} --outdir MACS2/broad1 ::: $(ls dedup_bam/*.bam)
 
 #10.Create bigwig files
 
