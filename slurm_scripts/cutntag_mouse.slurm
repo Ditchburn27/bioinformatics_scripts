@@ -2,10 +2,10 @@
 
 #SBATCH --job-name=CUTnTag
 #SBATCH --partition=peb
-#SBATCH --mem-per-cpu=5G
+#SBATCH --mem-per-cpu=10G
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
-#SBATCH --cpus-per-task=35
+#SBATCH --cpus-per-task=20
 #SBATCH --time=8:00:00   
 #SBATCH --export=NONE
 ##SBATCH --mail-user=22720224@student.uwa.edu.au
