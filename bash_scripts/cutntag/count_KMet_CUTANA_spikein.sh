@@ -1,7 +1,7 @@
 #!/bin/bash
 ##########################################
 # Written by Dr. Bryan Venters, EpiCypher Inc.
-# Updated: Modified by [Your Name], [Date]
+# Updated: Modified by [Leighton Ditchburn], [28.05.2025]
 #
 # Purpose: Use "grep -c" to count exact match to CUTANA spike-in nucleosome barcodes from unzipped paired-end (R1 & R2) fastqs. 
 # This script has been modified to process all fastq files in a specified directory and output results to a CSV file.
