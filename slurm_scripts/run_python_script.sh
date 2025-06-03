@@ -17,8 +17,8 @@ set -eu -o pipefail -o verbose
 echo $SLURM_JOB_NAME job started at  `date`
 
 # To compile with the GNU toolchain
-module load Anaconda3/2023.07
-conda activate /group/ll005/envs/scrna
+#module load Anaconda3/2023.07
+#conda activate /group/ll005/envs/scrna
 
 #  Note: SLURM_JOBID is a unique number for every job.
 #  These are generic variables
@@ -38,4 +38,4 @@ else
       echo -ne "\nPath to  path to python script is\n\t${PYTHON_SCRIPT}\n"
 fi
 
-python $PYTHON_SCRIPT
+conda run -n scrna python $PYTHON_SCRIPT
