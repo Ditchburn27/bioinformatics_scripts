@@ -18,7 +18,7 @@ echo $SLURM_JOB_NAME job started at  `date`
 
 # To compile with the GNU toolchain
 #module load Anaconda3/2023.07
-#conda activate /group/ll005/envs/scrna
+conda activate /group/ll005/envs/scrna
 
 #  Note: SLURM_JOBID is a unique number for every job.
 #  These are generic variables
