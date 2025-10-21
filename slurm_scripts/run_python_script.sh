@@ -18,7 +18,7 @@ echo $SLURM_JOB_NAME job started at  `date`
 
 # To compile with the GNU toolchain
 #module load Anaconda3/2023.07
-conda activate /group/ll005/envs/scrna
+#conda activate /group/ll005/envs/scrna
 
 #  Note: SLURM_JOBID is a unique number for every job.
 #  These are generic variables
@@ -38,4 +38,18 @@ else
       echo -ne "\nPath to  path to python script is\n\t${PYTHON_SCRIPT}\n"
 fi
 
-conda run -n scrna python $PYTHON_SCRIPT
+if [ -z "$2" ]
+then
+      echo -ne "
+      ################\n
+      Second argument is empty. Please provide conda environment name.\n
+      ################\n"
+      exit 1
+else
+      CONDA_ENV=$2
+
+
+      echo -ne "\nPath to  path to python script is\n\t${PYTHON_SCRIPT}\n"
+fi
+
+conda run -n $CONDA_ENV python $PYTHON_SCRIPT
