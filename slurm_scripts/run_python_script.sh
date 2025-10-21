@@ -1,7 +1,7 @@
 #!/bin/bash --login
 
 #SBATCH --job-name=model_training
-#SBATCH --partition=peb
+#SBATCH --partition=ll
 #SBATCH --mem-per-cpu=40G
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
