@@ -49,7 +49,7 @@ else
       CONDA_ENV=$2
 
 
-      echo -ne "\nPath to  path to python script is\n\t${PYTHON_SCRIPT}\n"
+      echo -ne "\nconda environment to run script in is\n\t${CONDA_ENV}\n"
 fi
 
 conda run -n $CONDA_ENV python $PYTHON_SCRIPT
