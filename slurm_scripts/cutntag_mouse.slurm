@@ -1,12 +1,12 @@
 #!/bin/bash --login
 
 #SBATCH --job-name=CUTnTag
-#SBATCH --partition=peb
+#SBATCH --partition=ll
 #SBATCH --mem-per-cpu=10G
 #SBATCH --nodes=1
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=20
-#SBATCH --time=8:00:00   
+#SBATCH --time=24:00:00   
 #SBATCH --export=NONE
 ##SBATCH --mail-user=22720224@student.uwa.edu.au
 ##SBATCH --mail-type=BEGIN,END
@@ -16,7 +16,7 @@
 echo $SLURM_JOB_NAME job started at  `date`
 
 # To compile with the GNU toolchain
-module load Anaconda3/2023.07
+module load Anaconda3/2024.06
 conda activate /group/ll005/envs/cutntag
 
 #  Note: SLURM_JOBID is a unique number for every job.
@@ -54,8 +54,8 @@ cd $SCRATCH
 fastqc fastq/*fastq.gz -o ${SCRATCH}/fastqc --threads ${SLURM_CPUS_PER_TASK}
 
 #2.get the read1 and read2 name and put in a file
-ls fastq/*_R1*fastq.gz >> read1
-ls fastq/*_R2*fastq.gz >> read2
+ls fastq/*R1*fastq.gz >> read1
+ls fastq/*R2*fastq.gz >> read2
 
 #3.Adapter Trimming with fastp
 
@@ -79,8 +79,8 @@ done < read2
 
 #4.get the read1 and read2 name of trimmed fastq and put in a file
 
-ls trimmed_fastq/*_R1*fastq.gz >> trimmed_read1
-ls trimmed_fastq/*_R2*fastq.gz >> trimmed_read2
+ls trimmed_fastq/*R1*fastq.gz >> trimmed_read1
+ls trimmed_fastq/*R2*fastq.gz >> trimmed_read2
 
 #5.mapping with bowtie2 removing unmapped reads and convert to sorted bam and create index
 for i in $(cat trimmed_read1)
