@@ -125,7 +125,7 @@ bcl-convert --bcl-input-directory ${RUNFOLDER} \
 --output-directory $SCRATCH/fastqs \
 --bcl-sampleproject-subdirectories true \
 --force \
---no-lane-splitting false \
+--no-lane-splitting ${NoLaneSplit} \
 --sample-sheet $SampleSheet
 
 #############################################
