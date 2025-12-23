@@ -71,6 +71,18 @@ else
       echo -ne "\nSampleSheet is set to: ${SampleSheet}\n"
 fi
 
+if [ -z "$4" ]
+then
+      NoLaneSplit="true"	
+      echo -ne "
+      ################\n
+      No Lane splitting option given. Defualt is true. \n
+      ################\n"
+else
+      NoLaneSplit=$4
+
+      echo -ne "\nno-lane-splitting is set to: ${NoLaneSplit}\n"
+fi
 
 JOBNAME=fastq_conversion
 SCRATCH="/scratch/ll005/lditchburn/${JOBNAME}_${SLURM_JOBID}"
