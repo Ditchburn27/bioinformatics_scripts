@@ -225,14 +225,39 @@ echo "============================================================"
 echo "STEP 4: Adapter Trimming"
 echo "============================================================"
 
-ls ${FASTQ_SOURCE}/*R1*fastq.gz > ${SCRATCH}/read1_list.txt 2>/dev/null || ls ${FASTQ_SOURCE}/*R1*fq.gz > ${SCRATCH}/read1_list.txt
-ls ${FASTQ_SOURCE}/*R2*fastq.gz > ${SCRATCH}/read2_list.txt 2>/dev/null || ls ${FASTQ_SOURCE}/*R2*fq.gz > ${SCRATCH}/read2_list.txt
+# Get R1 and R2 files
+ls ${FASTQ_SOURCE}/*R1*.fastq.gz 2>/dev/null | sort > ${SCRATCH}/read1_list.txt
+ls ${FASTQ_SOURCE}/*R2*.fastq.gz 2>/dev/null | sort > ${SCRATCH}/read2_list.txt
 
-export SLURM_CPUS_PER_TASK
-parallel --jobs 4 --link     "fastp -w $((SLURM_CPUS_PER_TASK/4)) -x -y     -i {1} -I {2}     -o ${SCRATCH}/trimmed_fastq/{1//.fastq.gz}_trimmed.fastq.gz     -O ${SCRATCH}/trimmed_fastq/{2//.fastq.gz}_trimmed.fastq.gz     -h ${SCRATCH}/trimmed_fastq/{1//.fastq.gz}_fastp.html     -R ${SCRATCH}/trimmed_fastq/{1//.fastq.gz}_fastp_report     &> ${SCRATCH}/logs/fastp/{1//.fastq.gz}_fastp.log"     :::: ${SCRATCH}/read1_list.txt     :::: ${SCRATCH}/read2_list.txt
+# Check if files were found
+if [ ! -s ${SCRATCH}/read1_list.txt ]; then
+    echo "ERROR: No R1 files found in ${FASTQ_SOURCE}"
+    exit 1
+fi
+
+# Process each pair
+while IFS= read -r r1 && IFS= read -r r2 <&3; do
+    # Extract base name
+    base=$(basename ${r1} .R1.fastq.gz)
+
+    echo "Trimming: $base"
+
+    fastp -w 5 -x -y         -i ${r1}         -I ${r2}         -o ${SCRATCH}/trimmed_fastq/${base}.R1_trimmed.fastq.gz         -O ${SCRATCH}/trimmed_fastq/${base}.R2_trimmed.fastq.gz         -h ${SCRATCH}/trimmed_fastq/${base}_fastp.html         -R "${base}_fastp_report"         &> ${SCRATCH}/logs/fastp/${base}_fastp.log &
+
+    # Limit concurrent jobs
+    if (( $(jobs -r | wc -l) >= 4 )); then
+        wait -n
+    fi
+done < ${SCRATCH}/read1_list.txt 3< ${SCRATCH}/read2_list.txt
+
+# Wait for all fastp jobs to complete
+wait
+
+echo "Fastp trimming complete"
+
 
 ################################################################################
-# STEP 5: Alignment with Bowtie2
+# STEP 5: Bowtie2 Alignment
 ################################################################################
 
 echo ""
@@ -240,12 +265,40 @@ echo "============================================================"
 echo "STEP 5: Bowtie2 Alignment"
 echo "============================================================"
 
-ls ${SCRATCH}/trimmed_fastq/*R1*trimmed.fastq.gz > ${SCRATCH}/trimmed_read1_list.txt
-ls ${SCRATCH}/trimmed_fastq/*R2*trimmed.fastq.gz > ${SCRATCH}/trimmed_read2_list.txt
+# Get trimmed files
+ls ${SCRATCH}/trimmed_fastq/*R1_trimmed.fastq.gz 2>/dev/null | sort > ${SCRATCH}/trimmed_read1_list.txt
+ls ${SCRATCH}/trimmed_fastq/*R2_trimmed.fastq.gz 2>/dev/null | sort > ${SCRATCH}/trimmed_read2_list.txt
 
-parallel --jobs 3 --link     "bowtie2 --end-to-end --very-sensitive --no-mixed --no-discordant     --phred33 -I 10 -X 700 -p $((SLURM_CPUS_PER_TASK/3))     -x ${BOWTIE2_INDEX} -1 {1} -2 {2}     2> ${SCRATCH}/logs/bowtie2/{1//.fastq.gz}_bowtie2.txt |     samtools view -bS -F 4 - |     samtools sort -@ 4 -o ${SCRATCH}/sorted_bam/{1//.R1_001_trimmed.fastq.gz}.sorted.bam -"     :::: ${SCRATCH}/trimmed_read1_list.txt     :::: ${SCRATCH}/trimmed_read2_list.txt
+if [ ! -s ${SCRATCH}/trimmed_read1_list.txt ]; then
+    echo "ERROR: No trimmed R1 files found"
+    exit 1
+fi
 
-parallel -j8 "samtools index {}" ::: ${SCRATCH}/sorted_bam/*.bam
+# Align each pair
+while IFS= read -r r1 && IFS= read -r r2 <&3; do
+    base=$(basename ${r1} .R1_trimmed.fastq.gz)
+
+    echo "Aligning: $base"
+
+    bowtie2 --end-to-end --very-sensitive --no-mixed --no-discordant         --phred33 -I 10 -X 700 -p 6         -x ${BOWTIE2_INDEX} -1 ${r1} -2 ${r2}         2> ${SCRATCH}/logs/bowtie2/${base}_bowtie2.txt |         samtools view -bS -F 4 - |         samtools sort -@ 4 -o ${SCRATCH}/sorted_bam/${base}.sorted.bam - &
+
+    # Limit concurrent alignments
+    if (( $(jobs -r | wc -l) >= 3 )); then
+        wait -n
+    fi
+done < ${SCRATCH}/trimmed_read1_list.txt 3< ${SCRATCH}/trimmed_read2_list.txt
+
+wait
+
+echo "Alignment complete"
+
+# Index BAM files
+for bam in ${SCRATCH}/sorted_bam/*.bam; do
+    if [ -f "$bam" ]; then
+        samtools index $bam &
+    fi
+done
+wait
 
 ################################################################################
 # STEP 6: Remove Duplicates
@@ -256,9 +309,30 @@ echo "============================================================"
 echo "STEP 6: Removing Duplicates"
 echo "============================================================"
 
-parallel -j10     "picard MarkDuplicates -I {} -O ${SCRATCH}/dedup_bam/{/.}.rmDup.bam     --REMOVE_DUPLICATES true -M ${SCRATCH}/logs/dedup/{/.}_picard.txt"     ::: ${SCRATCH}/sorted_bam/*.bam
+for bam in ${SCRATCH}/sorted_bam/*.bam; do
+    if [ -f "$bam" ]; then
+        base=$(basename ${bam} .sorted.bam)
 
-parallel -j8 "samtools index {}" ::: ${SCRATCH}/dedup_bam/*.bam
+        picard MarkDuplicates             -I ${bam}             -O ${SCRATCH}/dedup_bam/${base}.sorted.rmDup.bam             --REMOVE_DUPLICATES true             -M ${SCRATCH}/logs/dedup/${base}_picard.txt &
+
+        # Limit concurrent jobs
+        if (( $(jobs -r | wc -l) >= 10 )); then
+            wait -n
+        fi
+    fi
+done
+
+wait
+
+echo "Deduplication complete"
+
+# Index deduplicated BAMs
+for bam in ${SCRATCH}/dedup_bam/*.bam; do
+    if [ -f "$bam" ]; then
+        samtools index $bam &
+    fi
+done
+wait
 
 ################################################################################
 # STEP 7: Generate Fragment Files
@@ -269,11 +343,37 @@ echo "============================================================"
 echo "STEP 7: Generating Fragment Files"
 echo "============================================================"
 
-parallel -j10 "samtools sort -@ 2 -n {} -o ${SCRATCH}/fragment_bed/{/.}.name_sorted.bam"     ::: ${SCRATCH}/dedup_bam/*.bam
+# Sort by name for bedpe
+for bam in ${SCRATCH}/dedup_bam/*.bam; do
+    if [ -f "$bam" ]; then
+        base=$(basename ${bam} .bam)
+        samtools sort -@ 2 -n ${bam} -o ${SCRATCH}/fragment_bed/${base}.name_sorted.bam &
 
-parallel -j10     "bedtools bamtobed -bedpe -i {} |     awk 'BEGIN{OFS=\"	\"}{if(\$1 !~ /chrM/)print \$1,\$2+4,\$6-5}' |     bedtools intersect -v -a - -b ${BLACKLIST} > ${SCRATCH}/fragment_bed/{/.}.bed"     ::: ${SCRATCH}/fragment_bed/*.name_sorted.bam
+        if (( $(jobs -r | wc -l) >= 10 )); then
+            wait -n
+        fi
+    fi
+done
 
-rm ${SCRATCH}/fragment_bed/*.name_sorted.bam
+wait
+
+# Convert to fragments
+for bam in ${SCRATCH}/fragment_bed/*.name_sorted.bam; do
+    if [ -f "$bam" ]; then
+        base=$(basename ${bam} .name_sorted.bam)
+
+        bedtools bamtobed -bedpe -i ${bam} |             awk 'BEGIN{OFS="	"}{if($1 !~ /chrM/)print $1,$2+4,$6-5}' |             bedtools intersect -v -a - -b ${BLACKLIST} > ${SCRATCH}/fragment_bed/${base}.bed &
+
+        if (( $(jobs -r | wc -l) >= 10 )); then
+            wait -n
+        fi
+    fi
+done
+
+wait
+
+# Clean up name-sorted BAMs
+rm -f ${SCRATCH}/fragment_bed/*.name_sorted.bam
 
 ################################################################################
 # STEP 8: Peak Calling with MACS2
@@ -284,9 +384,35 @@ echo "============================================================"
 echo "STEP 8: Peak Calling"
 echo "============================================================"
 
-parallel -j5     "macs2 callpeak -t {} -f BAMPE --keep-dup all --nolambda --nomodel     --gsize ${GENOME_SIZE} -q 1e-5 -n {/.} --outdir ${SCRATCH}/MACS2/narrow"     ::: ${SCRATCH}/dedup_bam/*.bam
+# Narrow peaks
+for bam in ${SCRATCH}/dedup_bam/*.bam; do
+    if [ -f "$bam" ]; then
+        base=$(basename ${bam} .bam)
 
-parallel -j5     "macs2 callpeak -t {} -f BAMPE --keep-dup all --broad --nolambda --nomodel     --gsize ${GENOME_SIZE} -q 1e-5 -n {/.} --outdir ${SCRATCH}/MACS2/broad"     ::: ${SCRATCH}/dedup_bam/*.bam
+        macs2 callpeak -t ${bam} -f BAMPE --keep-dup all --nolambda --nomodel             --gsize ${GENOME_SIZE} -q 1e-5 -n ${base}             --outdir ${SCRATCH}/MACS2/narrow &
+
+        if (( $(jobs -r | wc -l) >= 5 )); then
+            wait -n
+        fi
+    fi
+done
+
+wait
+
+# Broad peaks
+for bam in ${SCRATCH}/dedup_bam/*.bam; do
+    if [ -f "$bam" ]; then
+        base=$(basename ${bam} .bam)
+
+        macs2 callpeak -t ${bam} -f BAMPE --keep-dup all --broad --nolambda --nomodel             --gsize ${GENOME_SIZE} -q 1e-5 -n ${base}             --outdir ${SCRATCH}/MACS2/broad &
+
+        if (( $(jobs -r | wc -l) >= 5 )); then
+            wait -n
+        fi
+    fi
+done
+
+wait
 
 ################################################################################
 # STEP 9: Generate BigWig Files
@@ -297,7 +423,19 @@ echo "============================================================"
 echo "STEP 9: Generating BigWig Files"
 echo "============================================================"
 
-parallel -j4     "bamCoverage -p $((SLURM_CPUS_PER_TASK/4)) -b {}     --normalizeUsing CPM --blackListFileName ${BLACKLIST}     -o ${SCRATCH}/bigwig/{/.}.bw"     ::: ${SCRATCH}/dedup_bam/*.bam
+for bam in ${SCRATCH}/dedup_bam/*.bam; do
+    if [ -f "$bam" ]; then
+        base=$(basename ${bam} .bam)
+
+        bamCoverage -p 5 -b ${bam}             --normalizeUsing CPM --blackListFileName ${BLACKLIST}             -o ${SCRATCH}/bigwig/${base}.bw &
+
+        if (( $(jobs -r | wc -l) >= 4 )); then
+            wait -n
+        fi
+    fi
+done
+
+wait
 
 ################################################################################
 # STEP 10: QC and Summary Statistics
@@ -317,8 +455,10 @@ fi
 
 echo -e "BAM_file	Unique_fragments" > ${SCRATCH}/bam_stats_summary.txt
 for bam in ${SCRATCH}/dedup_bam/*.bam; do
-    count=$(samtools view -@ 4 -F 0x40 $bam | cut -f1 | sort -u | wc -l)
-    echo -e "$bam	$count" >> ${SCRATCH}/bam_stats_summary.txt
+    if [ -f "$bam" ]; then
+        count=$(samtools view -@ 4 -F 0x40 $bam | cut -f1 | sort -u | wc -l)
+        echo -e "$bam	$count" >> ${SCRATCH}/bam_stats_summary.txt
+    fi
 done
 
 ################################################################################
