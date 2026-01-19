@@ -21,6 +21,8 @@ echo "DITCH-seq bulk pipeline started at $(date)"
 echo "============================================================"
 
 # Load modules
+module purge
+module load gcc
 module load Anaconda3/2024.06
 conda activate /group/ll005/envs/cutntag
 
