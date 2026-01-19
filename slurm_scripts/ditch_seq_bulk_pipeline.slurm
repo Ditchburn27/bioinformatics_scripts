@@ -151,6 +151,16 @@ fi
 
 cd $SCRATCH
 
+############################################
+# Edit fastq file name
+echo "Changing the name of the fastq files..."
+for sample in $(cat $SAMPLE_LIST); do 
+    echo changing name $sample
+    mv raw_fastq/*$sample*R1*fastq.gz raw_fastq/$sample.R1.fastq.gz
+    mv raw_fastq/*$sample*R2*fastq.gz raw_fastq/$sample.R2.fastq.gz
+    mv raw_fastq/*$sample*R3*fastq.gz raw_fastq/$sample.R3.fastq.gz
+done
+
 ################################################################################
 # STEP 1: UMI Attachment
 ################################################################################
