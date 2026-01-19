@@ -24,7 +24,7 @@ echo "============================================================"
 module purge
 module load gcc
 module load Anaconda3/2024.06
-conda activate /group/ll005/envs/cutntag
+conda activate /group/ll005/envs/sncutntag
 
 ################################################################################
 # HARDCODED PATHS - EDIT THESE FOR YOUR SETUP
@@ -197,6 +197,7 @@ fi
 ################################################################################
 # STEP 3: FastQC on processed FASTQs
 ################################################################################
+conda activate /group/ll005/envs/cutntag
 
 echo ""
 echo "============================================================"
